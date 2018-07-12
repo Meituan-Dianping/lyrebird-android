@@ -47,7 +47,7 @@ lyrebird
 1. clone本项目
 
     ```bash
-    git clone ...
+    git clone git@github.com:meituan/lyrebird-android.git
     ```
 
 2. 进入项目目录
@@ -56,7 +56,7 @@ lyrebird
     cd lyrebird-android
     ```
 
-3. 创建虚拟环境
+3. 创建虚拟环境
 
     ```bash
     python3 -m venv venv
