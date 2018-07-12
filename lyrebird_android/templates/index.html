@@ -1,0 +1,286 @@
+<div id="app" xmlns="http://www.w3.org/1999/html">
+
+    <div class="row">
+        <div class="col-md-3">
+            <div class="box box-solid">
+                <div class="box-header">
+                    <label>Devices</label>
+                </div>
+                <div class="box-body">
+                    <ul class="nav nav-pills nav-stacked">
+                        <li v-for="(device, id) in devices">
+                            <a class="btn btn-block btn-default" v-on:click="showDeviceInfo(id)">{{ id }}</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div v-if="screenShotUrl" class="box box-solid">
+                <div class="box-header">
+                    <label>Screen shot</label>
+                </div>
+                <div class="box-body">
+                    <img v-bind:src="screenShotUrl" class="img-responsive" style="width:100%">
+                </div>
+            </div>
+        </div>
+        <div v-if="currentDevice" class="col-md-9">
+            <div class="box box-solid">
+                <div class="box-header">
+                    <label>Device Info</label>
+                </div>
+                <div class="box-body">
+                    <div v-if="currentDevice">
+                        <div class="nav-tabs-custom">
+                            <ul class="nav nav-tabs">
+                                <li class="active"><a href="#tab_device_info" data-toggle="tab">Device</a></li>
+                                <li><a href="#tab_app_info" data-toggle="tab">App</a></li>
+                            </ul>
+                            <div class="tab-content">
+                                <div class="tab-pane active pre-scrollable" id="tab_device_info">
+                                    <div id="device-info">
+                                        <div v-if="currentDevice">
+                                            <div>
+                                                <table class="table table-responsive">
+                                                    <tr>
+                                                        <td>
+                                                            <label>Device ID</label>
+                                                        </td>
+                                                        <td>
+                                                            <span>{{currentDevice.device_id}}</span>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>
+                                                            <label>Model</label>
+                                                        </td>
+                                                        <td>
+                                                            <span>{{currentDevice.model}}</span>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>
+                                                            <label>Android Version</label>
+                                                        </td>
+                                                        <td>
+                                                            <span>{{currentDevice.releaseVersion}}</span>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                                <div>
+                                                    <button class="btn btn-info" data-toggle="modal"
+                                                            data-target="#device-detail-modal">more detail</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div><!-- /.tab-pane -->
+                                <div class="tab-pane pre-scrollable" id="tab_app_info">
+                                    <div class="form-group">
+                                        <table class="table table-responsive">
+                                            <tr>
+                                                <td><label>PackageName</label></td>
+                                                <td>
+                                                    <input class="form-control" v-model="packageName"
+                                                           placeholder="package name" v-on:change="getAppInfo">
+                                                </td>
+                                            </tr>
+                                            <tr v-if="currentApp">
+                                                <td><label>StartActivity</label></td>
+                                                <td>{{currentApp.launchActivity}}</td>
+                                            </tr>
+                                            <tr v-if="currentApp">
+                                                <td><label>AppVersion</label></td>
+                                                <td>
+                                                    <span>{{currentApp.version}}</span>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                        <button v-if="currentApp" class="btn btn-info" data-toggle="modal" data-target="#app-detail-modal">
+                                            more detail
+                                        </button>
+                                    </div>
+                                </div><!-- /.tab-pane -->
+                            </div><!-- /.tab-content -->
+                        </div><!-- nav-tabs-custom -->
+                    </div>
+                </div>
+            </div>
+            <div class="box box-solid">
+                <div class="box-body">
+                    <div v-if="currentDevice">
+                        <button class="btn btn-primary" v-on:click="startApp" :disabled="isStartingApp">Start app</button>
+                        <button class="btn btn-primary" v-on:click="stopApp">Stop app</button>
+                        <button class="btn btn-primary" v-on:click="takeScreenShot" :disabled="isTakingScreen">Take screen shot</button>
+                        <button class="btn btn-primary" v-on:click="dump" >Dump all</button>
+                    </div>
+                </div>
+            </div>
+            <div class="box box-solid">
+                <div class="box-header">
+                    <label>Log</label>
+                </div>
+                <div class="box-body">
+                    <div id="logBox" class="pre-scrollable" style="max-height: 500px; overflow-y: scroll;">
+                        <ul>
+                            <li v-for="log in logs">
+                                {{ log }}
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detail MODAL -->
+    <div class="modal fade" id="app-detail-modal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" style="width: 1000px">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title"><i class="fa fa-edit"></i>Detail</h4>
+                </div>
+                <div class="modal-body">
+                    <div v-if="currentApp">
+                        <pre>{{currentApp.detail}}</pre>
+                    </div>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+    <!-- Detail MODAL -->
+    <div class="modal fade" id="device-detail-modal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" style="width: 1000px">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title"><i class="fa fa-edit"></i>Detail</h4>
+                </div>
+                <div class="modal-body">
+                    <div v-if="currentDeviceDetail">
+                        <pre>{{currentDeviceDetail}}</pre>
+                    </div>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+</div>
+
+
+<script src="/ui/plugin/android/static/vue.js"></script>
+<script src="/ui/plugin/android/static/vue-resource.js"></script>
+<script>
+    var sio = io('/android-plugin');
+    var apiUrl = '/ui/plugin/android/api';
+    new Vue({
+        el: '#app',
+        data: {
+            devices: null,
+            currentDevice: null,
+            currentDeviceDetail: null,
+            packageName: null,
+            currentApp: null,
+            currentAppDetail: null,
+            logs: [],
+            screenShotUrl: null,
+            isTakingScreen: false,
+            isStartingApp: false
+        },
+        created: function () {
+            this.getDevices();
+            this.getLastPackageName();
+
+            var pushLog = this.pushLog;
+            sio.on('log', function (data) {
+                pushLog(data)
+            });
+
+            var getDevices = this.getDevices;
+            sio.on('device', function (data) {
+                console.log('Update device list');
+                getDevices();
+            });
+
+        },
+        methods: {
+            scrollDownLog: function () {
+                var container = this.$el.querySelector("#logBox");
+                container.scrollTop = container.scrollHeight;
+            },
+            pushLog: function (logList) {
+                this.logs = this.logs.concat(logList);
+                setTimeout(this.scrollDownLog, 500);
+            },
+            getAppInfo: function () {
+                console.log('app info change');
+                this.$http.get(apiUrl + '/app/' + this.currentDevice.device_id + '/' + this.packageName)
+                    .then(function (response) {
+                        this.currentApp = response.data;
+                    });
+            },
+            getLastPackageName: function () {
+                this.$http.get(apiUrl + '/package_name')
+                    .then(function (response) {
+                        if(response.data.packageName){
+                            this.packageName = response.data.packageName
+                        }
+                    });
+            },
+            getDevices: function () {
+                this.$http.get(apiUrl + '/devices').then(function (response) {
+                    console.info("api/device got response", response.data);
+                    this.devices = response.data;
+                });
+            },
+            getDeviceDetail: function () {
+                console.log('get device detail');
+                this.$http.get(apiUrl + '/device/' + this.currentDevice.device_id)
+                    .then(function (response) {
+                        this.currentDeviceDetail = response.data;
+                        console.log(response.data)
+                    });
+                if (this.packageName){
+                    this.getAppInfo();
+                }
+            },
+            showDeviceInfo: function (device_id) {
+                console.info('vue show device info ', device_id);
+                if (this.currentDevice !== this.devices[device_id]) {
+                    this.logs = [];
+                    this.currentDevice = this.devices[device_id];
+                    sio.emit('log-start', this.currentDevice.device_id)
+                }
+                this.getDeviceDetail();
+                this.takeScreenShot();
+            },
+            takeScreenShot: function () {
+                this.isTakingScreen = true;
+                this.$http.get(apiUrl + '/screenshot/'+this.currentDevice.device_id)
+                    .then(function (response) {
+                        this.screenShotUrl = response.data.imgUrl;
+                        this.isTakingScreen = false;
+                    });
+            },
+            startApp: function () {
+                this.isStartingApp = true;
+                this.$http.get(apiUrl + '/start_app/'+this.currentDevice.device_id + '/' + this.packageName)
+                    .then(function (response) {
+                        this.isStartingApp = false;
+                    });
+            },
+            stopApp: function () {
+                this.$http.get(apiUrl + '/stop_app/'+this.currentDevice.device_id + '/' + this.packageName)
+                    .then(function (response) {
+                    });
+            },
+            dump: function () {
+                this.$http.get(apiUrl + '/dump/'+this.currentDevice.device_id)
+                    .then(function (response) {
+                        console.log(response)
+                    })
+            }
+        }
+    })
+</script>
