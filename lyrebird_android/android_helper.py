@@ -16,7 +16,7 @@ Android Debug Bridge command helper
 Basic ADB command for device_service and API
 """
 
-logger = get_logger('Android')
+logger = get_logger()
 
 here = os.path.dirname(__file__)
 adb = None
