@@ -138,7 +138,7 @@ class MyUI(lyrebird.PluginView):
         conf = config.load()
         app = device.package_info(conf.package_name)
         device.stop_app(conf.package_name)
-        port = lyrebird.context.application.conf.get('mock').get('port')
+        port = lyrebird.context.application.conf.get('mock.port')
         device.start_app(app.launch_activity, get_ip(), port)
         return context.make_ok_response()
 
