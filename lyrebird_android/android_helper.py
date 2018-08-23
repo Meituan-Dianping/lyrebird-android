@@ -222,10 +222,16 @@ class Device:
                     log_filtered_file.flush()
                 
                 if self.crash_checker(line) and self.log_filter(line, pid_target):
-                    item = {'name':'crash', 'message':str(line.decode(encoding='UTF-8', errors='ignore'))}
-                    lyrebird.publish('device', item)
                     crash_filtered_file.writelines(line.decode(encoding='UTF-8', errors='ignore'))
                     crash_filtered_file.flush()
+                    # send Android.crash event
+                    item = [{
+                            'id':self.device_id, 
+                            'crash':[
+                                {'name':'crash_log', 'path':self._crash_filtered_file}, 
+                            ] 
+                        }]
+                    lyrebird.publish('android.crash', item)
 
                 if self.anr_checker(line):
                     anr_file_name = os.path.join(anr_dir, 'android_anr_%s.log' % self.device_id)
@@ -240,9 +246,16 @@ class Device:
                          if p2_line:
                             pid_target.append(str(p2_line).strip().split( )[1])
                     if str(anr_headline).strip().split()[2] in pid_target:
-                        item = {'name':'anr', 'message':str(line.decode(encoding='UTF-8', errors='ignore'))}
-                        lyrebird.publish('device', item)
                         subprocess.run(f'{adb} -s {self.device_id} pull "/data/anr/traces.txt" {self._anr_filtered_file}', shell=True, stdout=subprocess.PIPE)
+
+                        # send Android.crash event
+                        item = [{
+                            'id':self.device_id, 
+                            'crash':[
+                                {'name':'anr_log', 'path':self._anr_filtered_file}, 
+                            ] 
+                        }]
+                        lyrebird.publish('android.crash', item)
                         
                 self._log_cache.append(line.decode(encoding='UTF-8', errors='ignore'))
 
@@ -380,4 +393,25 @@ def devices():
     for line in lines[1:]:
         device = Device.from_adb_line(line)
         online_devices[device.device_id] = device
+
+    # send Android.device event
+    devices_list = []
+    for device_id in online_devices:
+        device_detail = online_devices[device_id]
+        item = {}
+        item['id'] = device_id
+        item['info'] = {
+            'product': device_detail.product,
+            'model': device_detail.model
+        }
+        for line in device_detail.device_info:
+            if 'ro.build.version.release' in line:
+                item['info']['os'] = line[line.rfind('[') + 1:line.rfind(']')].strip()
+                break
+        devices_list.append(item)
+
+    last_devices_list = lyrebird.state.get('android.device')
+    if devices_list != last_devices_list:
+        lyrebird.publish('android.device', devices_list, state=True)
+
     return online_devices
