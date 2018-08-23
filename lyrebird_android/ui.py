@@ -225,6 +225,19 @@ class MyUI(lyrebird.PluginView):
 
         return app_info_file_path
 
+    def get_screenshots(self):
+        screenshot_list = []
+        for device_id in device_service.devices:
+            device_detail = device_service.devices[device_id]
+            item = {}
+            item['id'] = device_id
+            item['screenshot'] = {
+                'name': 'screenshot',
+                'path': device_detail.take_screen_shot()
+            }
+            screenshot_list.append(item)
+        lyrebird.publish('android.screenshot', screenshot_list)
+
     def on_create(self):
         # for overbridge
         self.add_url_rule('/api/info', view_func=self.info)
@@ -250,6 +263,8 @@ class MyUI(lyrebird.PluginView):
         self.on_event('log-start', self.logcat_start, '/android-plugin')
         # 启动设备监听服务
         lyrebird.start_background_task(device_service.run)
+        # 订阅频道 android.cmd
+        lyrebird.subscribe('android.cmd', self.get_screenshots)
 
     def get_icon(self):
         return 'fa fa-fw fa-android'
