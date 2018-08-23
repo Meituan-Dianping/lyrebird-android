@@ -229,10 +229,9 @@ class Device:
                             'id':self.device_id, 
                             'crash':[
                                 {'name':'crash_log', 'path':self._crash_filtered_file}, 
-                                {'name':'screenshot', 'path':self.take_screen_shot()}
                             ] 
                         }]
-                    lyrebird.publish('Android.crash', item, state=True)
+                    lyrebird.publish('android.crash', item)
 
                 if self.anr_checker(line):
                     anr_file_name = os.path.join(anr_dir, 'android_anr_%s.log' % self.device_id)
@@ -254,10 +253,9 @@ class Device:
                             'id':self.device_id, 
                             'crash':[
                                 {'name':'anr_log', 'path':self._anr_filtered_file}, 
-                                {'name':'screenshot', 'path':self.take_screen_shot()}
                             ] 
                         }]
-                        lyrebird.publish('Android.crash', item, state=True)
+                        lyrebird.publish('android.crash', item)
                         
                 self._log_cache.append(line.decode(encoding='UTF-8', errors='ignore'))
 
@@ -412,8 +410,8 @@ def devices():
                 break
         devices_list.append(item)
 
-    last_devices_list = lyrebird.state.get('Android.device')
+    last_devices_list = lyrebird.state.get('android.device')
     if devices_list != last_devices_list:
-        lyrebird.publish('Android.device', devices_list, state=True)
+        lyrebird.publish('android.device', devices_list, state=True)
 
     return online_devices
