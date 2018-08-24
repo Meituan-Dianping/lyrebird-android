@@ -6,7 +6,7 @@ import json
 import time
 import codecs
 from lyrebird import context
-from lyrebird import get_logger
+from lyrebird.log import get_logger
 import lyrebird
 from . import config
 
@@ -159,7 +159,7 @@ class Device:
             if len(info_kv) >= 2:
                 setattr(_device, info_kv[0], info_kv[1])
             else:
-                logger.error('Read device info error: unknown format', info_kv)
+                logger.error(f'Read device info error: unknown format {info_kv}')
         return _device
 
     def install(self, apk_file):
