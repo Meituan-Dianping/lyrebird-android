@@ -6,7 +6,7 @@ import lyrebird
 """
 Android plugin config manager
 """
-    
+
 storage = lyrebird.get_plugin_storage()
 CONFIG_FILE = os.path.abspath(os.path.join(storage, 'conf.json'))
 
