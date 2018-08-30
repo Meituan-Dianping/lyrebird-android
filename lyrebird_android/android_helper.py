@@ -88,7 +88,7 @@ class App:
             if app.version_name and app.version_code and actionMAIN_line_num:
                 package_name_line = lines[actionMAIN_line_num]
                 app.launch_activity = package_name_line.strip().split()[1]
-                return app
+                break
 
         return app
 
@@ -382,8 +382,10 @@ def devices():
         return []
     
     lines = [line for line in output.split('\n') if line]
-    online_devices = {} # information for plugin own
-    devices_info = [] # information for bugit
+    # online_devices contains information for plugin own
+    online_devices = {}
+    # devices_info contains information for bugit
+    devices_info = []
     
     # no device connected
     if len(lines) > 1:

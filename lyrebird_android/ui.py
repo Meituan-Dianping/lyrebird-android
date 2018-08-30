@@ -225,7 +225,7 @@ class MyUI(lyrebird.PluginView):
 
         return app_info_file_path
 
-    def get_screenshots(self):
+    def get_screenshots(self, message):
         screenshot_list = []
         for device_id in device_service.devices:
             device_detail = device_service.devices[device_id]
@@ -264,7 +264,7 @@ class MyUI(lyrebird.PluginView):
         # 启动设备监听服务
         lyrebird.start_background_task(device_service.run)
         # 订阅频道 android.cmd
-        lyrebird.subscribe('android.cmd', self.get_screenshots())
+        lyrebird.subscribe('android.cmd', self.get_screenshots)
 
     def get_icon(self):
         return 'fa fa-fw fa-android'
