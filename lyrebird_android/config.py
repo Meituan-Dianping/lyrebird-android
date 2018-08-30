@@ -1,7 +1,7 @@
-import lyrebird
 import os
 import json
 import codecs
+import lyrebird
 
 """
 Android plugin config manager
@@ -22,12 +22,7 @@ class Config:
         conf_file.write(json_str)
         conf_file.close()
 
-
 def load():
-    if os.path.exists(CONFIG_FILE):
-        conf_data = json.loads(codecs.open(CONFIG_FILE, 'r', 'utf-8').read())
-        conf = Config()
-        conf.__dict__ = conf_data
-        return conf
-    else:
-        return Config()
+    conf = Config()
+    conf.package_name = lyrebird.context.application.conf.get('android_package')
+    return conf
