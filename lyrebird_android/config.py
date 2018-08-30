@@ -22,9 +22,7 @@ class Config:
         conf_file.write(json_str)
         conf_file.close()
 
-
 def load():
     conf = Config()
     conf.package_name = lyrebird.context.application.conf.get('android_package')
-    # conf.package_name = "com.sankuai.meituan"
     return conf
