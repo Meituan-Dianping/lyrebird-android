@@ -1,4 +1,6 @@
 # Lyrebird Android plugin
+[![Build Status](https://travis-ci.org/meituan/lyrebird-android.svg?branch=master)](https://travis-ci.org/meituan/lyrebird-android)
+![GitHub](https://img.shields.io/github/license/meituan/lyrebird-android.svg)
 
 **[Lyrebird](https://github.com/meituan/lyrebird)是一个基于拦截以及模拟HTTP/HTTPS网络请求的面向移动应用的插件化测试平台。**
 
