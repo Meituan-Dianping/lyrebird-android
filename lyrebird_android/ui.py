@@ -1,12 +1,12 @@
-from flask import request, jsonify, send_from_directory
-from lyrebird import context
-import lyrebird
-from .device_service import DeviceService
-from . import config
-import codecs
-import time
 import os
+import time
 import socket
+import codecs
+import lyrebird
+from . import config
+from lyrebird import context
+from .device_service import DeviceService
+from flask import request, jsonify, send_from_directory
 
 
 device_service = DeviceService()
@@ -105,11 +105,11 @@ class MyUI(lyrebird.PluginView):
 
         for udid in devices:
             device = devices[udid]
-            if os.path.getsize(device.log_filtered_file):
+            if device.log_filtered_file and os.path.getsize(device.log_filtered_file):
                 res.append(self.make_dump_data(device.log_filtered_file))
-            if os.path.getsize(device.crash_filtered_file):
+            if device.crash_filtered_file and os.path.getsize(device.crash_filtered_file):
                 res.append(self.make_dump_data(device.crash_filtered_file))
-            if os.path.getsize(device.anr_filtered_file):
+            if device.anr_filtered_file and os.path.getsize(device.anr_filtered_file):
                 res.append(self.make_dump_data(device.anr_filtered_file))
             if len(self.get_app_info_file_path(device)):
                 res.append(self.make_dump_data(self.get_app_info_file_path(device)))
@@ -165,11 +165,11 @@ class MyUI(lyrebird.PluginView):
         if device:
             device.take_screen_shot()
         dump_list = [device.screen_shot_file, self.get_prop_file_path(device, device_id)]
-        if os.path.getsize(device.log_filtered_file):
+        if device.log_filtered_file and os.path.getsize(device.log_filtered_file):
             dump_list.append(device.log_filtered_file)
-        if os.path.getsize(device.crash_filtered_file):
+        if device.crash_filtered_file and os.path.getsize(device.crash_filtered_file):
             dump_list.append(device.crash_filtered_file)
-        if os.path.getsize(device.anr_filtered_file):
+        if device.anr_filtered_file and os.path.getsize(device.anr_filtered_file):
             dump_list.append(device.anr_filtered_file)
         if len(self.get_app_info_file_path(device)):
             dump_list.append(self.get_app_info_file_path(device))
@@ -264,7 +264,7 @@ class MyUI(lyrebird.PluginView):
         # 启动设备监听服务
         lyrebird.start_background_task(device_service.run)
         # 订阅频道 android.cmd
-        lyrebird.subscribe('android.cmd', self.get_screenshots)
+        lyrebird.subscribe('android.cmd', self.get_screenshots())
 
     def get_icon(self):
         return 'fa fa-fw fa-android'

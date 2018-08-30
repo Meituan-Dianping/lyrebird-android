@@ -1,14 +1,14 @@
-import subprocess
-import threading
 import os
 import sys
 import json
 import time
 import codecs
+import lyrebird
+import threading
+import subprocess
+from . import config
 from lyrebird import context
 from lyrebird.log import get_logger
-import lyrebird
-from . import config
 
 """
 Android Debug Bridge command helper
@@ -83,17 +83,12 @@ class App:
                 app.version_code = line.strip().split(' ')[0]
             if 'versionName' in line:
                 app.version_name = line.strip().split('=')[1]
-            if 'android.intent.action.MAIN' in line and not actionMAIN_line_num:
-                actionMAIN_line_num = index
+            if 'android.intent.action.MAIN:' in line:
+                actionMAIN_line_num = index + 1
             if app.version_name and app.version_code and actionMAIN_line_num:
-                break
-
-        def get_activity_name(line):
-            info_list = line.strip().split(' ')
-            return info_list[1]
-
-        package_name_line = lines[actionMAIN_line_num + 1]
-        app.launch_activity = get_activity_name(package_name_line)
+                package_name_line = lines[actionMAIN_line_num]
+                app.launch_activity = package_name_line.strip().split()[1]
+                return app
 
         return app
 
@@ -267,12 +262,14 @@ class Device:
         threading.Thread(target=log_handler, args=(p,)).start()
 
     def log_filter(self, line, pid_target):
-        if line:
-            pid_cur = str(line).strip().split()[2]
-            if pid_cur in pid_target:
-                return True
-            else:
-                return False
+        if not line:
+            return False
+        line_list = str(line).strip().split()
+        if len(line_list) <= 2:
+            return False
+        if line_list[2] not in pid_target:
+            return False
+        return True
 
     def crash_checker(self, line):
         crash_log_path = os.path.join(crash_dir, 'android_crash_%s.log' % self.device_id)
@@ -379,23 +376,21 @@ def devices():
     res = subprocess.run(f'{adb} devices -l', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     output = res.stdout.decode()
     err_str = res.stderr.decode()
-    # ADB命令执行异常
+    # ADB command error
     if len(output) <= 0 < len(err_str):
         print('Get devices list error', err_str)
         return []
-
+    
     lines = [line for line in output.split('\n') if line]
-    online_devices = {}
-    if len(lines) <= 1:
-        # print('Not found any devices')
-        return online_devices
+    online_devices = {} # information for plugin own
+    devices_info = [] # information for bugit
+    
+    # no device connected
+    if len(lines) > 1:
+        for line in lines[1:]:
+            device = Device.from_adb_line(line)
+            online_devices[device.device_id] = device
 
-    for line in lines[1:]:
-        device = Device.from_adb_line(line)
-        online_devices[device.device_id] = device
-
-    # send Android.device event
-    devices_list = []
     for device_id in online_devices:
         device_detail = online_devices[device_id]
         item = {}
@@ -404,14 +399,26 @@ def devices():
             'product': device_detail.product,
             'model': device_detail.model
         }
+        if device_detail.device_info == None:
+            continue
         for line in device_detail.device_info:
             if 'ro.build.version.release' in line:
                 item['info']['os'] = line[line.rfind('[') + 1:line.rfind(']')].strip()
                 break
-        devices_list.append(item)
+        devices_info.append(item)
 
-    last_devices_list = lyrebird.state.get('android.device')
+    last_devices_info = lyrebird.state.get('android.device')
+    if last_devices_info:
+        last_devices_list = [last_device.get('id') for last_device in last_devices_info]
+    else:
+        last_devices_list = []
+
+    if devices_info:
+        devices_list = [on_device.get('id') for on_device in devices_info]
+    else:
+        devices_list = []
+
     if devices_list != last_devices_list:
-        lyrebird.publish('android.device', devices_list, state=True)
-
+        lyrebird.publish('android.device', devices_info, state=True)
+    
     return online_devices
