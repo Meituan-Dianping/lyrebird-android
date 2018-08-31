@@ -187,3 +187,4 @@ data/
 
 # vscode
 .vscode/
+.pytest_cache/
