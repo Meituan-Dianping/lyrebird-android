@@ -24,5 +24,7 @@ class Config:
 
 def load():
     conf = Config()
-    conf.package_name = lyrebird.context.application.conf.get('android_package')
+    plugin_conf = lyrebird.context.application.conf.get('plugin.android')
+    if plugin_conf:
+        conf.package_name = plugin_conf.get('package')
     return conf
