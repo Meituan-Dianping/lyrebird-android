@@ -229,11 +229,12 @@ class MyUI(lyrebird.PluginView):
         screenshot_list = []
         for device_id in device_service.devices:
             device_detail = device_service.devices[device_id]
+            screenshot_path = device_detail.take_screen_shot()
             item = {}
             item['id'] = device_id
             item['screenshot'] = {
-                'name': 'screenshot',
-                'path': device_detail.take_screen_shot()
+                'name': os.path.basename(screenshot_path),
+                'path': screenshot_path
             }
             screenshot_list.append(item)
         lyrebird.publish('android.screenshot', screenshot_list)
