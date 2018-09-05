@@ -132,7 +132,6 @@ class MyUI(lyrebird.PluginView):
         :param device_id:
         :return:
         """
-        lyrebird.publish('android.cmd','')
         device = device_service.devices.get(device_id)
         if not device:
             device = list(device_service.devices.values())[0]
