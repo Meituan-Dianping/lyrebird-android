@@ -336,9 +336,9 @@ class Device:
             self._log_process = None
 
     def take_screen_shot(self):
-        p = subprocess.run(f'{adb} -s {self.device_id} exec-out screencap -p > {tmp_dir}/android_screenshot_{self.device_id}.png', shell=True)
+        p = subprocess.run(f'{adb} -s {self.device_id} exec-out screencap -p > {tmp_dir}/android_{self.device_id}.png', shell=True)
         if p.returncode == 0:
-            return os.path.abspath(os.path.join(tmp_dir, 'android_screenshot_%s.png' % self.device_id))
+            return os.path.abspath(os.path.join(tmp_dir, f'android_{self.device_id}.png'))
 
     def start_app(self, start_activity, ip, port):
         p = subprocess.run(f'{adb} -s {self.device_id} shell am start -n {start_activity} --es mock http://{ip}:{port}/mock/ --es closeComet true', shell=True)
