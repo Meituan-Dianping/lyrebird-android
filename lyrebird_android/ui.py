@@ -180,7 +180,7 @@ class MyUI(lyrebird.PluginView):
         return jsonify(dump_list)
 
     def get_prop_file_path(self, device, device_id):
-        device_prop_file_path = os.path.abspath(os.path.join(tmp_dir, '%s.info.txt' % device_id))
+        device_prop_file_path = os.path.abspath(os.path.join(tmp_dir, f'android_info_{device_id}.txt'))
         device_prop = device.device_info
         device_prop_file = codecs.open(device_prop_file_path, 'w', 'utf-8')
         for prop_line in device_prop:
@@ -190,7 +190,7 @@ class MyUI(lyrebird.PluginView):
         return device_prop_file_path
 
     def get_device_cpuinfo_file_path(self, device, device_id):
-        device_cpuinfo_file_path = os.path.abspath(os.path.join(tmp_dir, '%s.cpuinfo.txt' % device_id))
+        device_cpuinfo_file_path = os.path.abspath(os.path.join(tmp_dir, f'android_cpuinfo_{device_id}.txt'))
         device_cpuinfo = device.device_cpuinfo()
         device_cpuinfo_file = codecs.open(device_cpuinfo_file_path, 'w', 'utf-8')
         for cpuinfo_line in device_cpuinfo:
@@ -204,7 +204,7 @@ class MyUI(lyrebird.PluginView):
         conf = config.load()
         app_meminfo_file_path = ''
         if conf.package_name:
-            app_meminfo_file_path = os.path.abspath(os.path.join(tmp_dir, '%s.meminfo.txt' % conf.package_name))
+            app_meminfo_file_path = os.path.abspath(os.path.join(tmp_dir, f'android_meminfo_{conf.package_name}.txt'))
             app_meminfo = device.package_meminfo(conf.package_name)
             app_meminfo_file = codecs.open(app_meminfo_file_path, 'w', 'utf-8')
             for meminfo_line in app_meminfo:
@@ -217,7 +217,7 @@ class MyUI(lyrebird.PluginView):
         conf = config.load()
         app_info_file_path = ''
         if conf.package_name:
-            app_info_file_path = os.path.abspath(os.path.join(tmp_dir, '%s.info.txt' % conf.package_name))
+            app_info_file_path = os.path.abspath(os.path.join(tmp_dir, f'android_info_{conf.package_name}.txt'))
             app_info = device.package_info(conf.package_name)
             app_info_file = codecs.open(app_info_file_path, 'w', 'utf-8')
             app_info_file.writelines(app_info.raw)
