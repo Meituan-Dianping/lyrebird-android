@@ -81,8 +81,9 @@
                                             <tr>
                                                 <td><label>PackageName</label></td>
                                                 <td>
-                                                    <input class="form-control" v-model="packageName"
-                                                           placeholder="package name" v-on:change="getAppInfo">
+                                                    <i-select v-model="packageName" placeholder="package name" filterable>
+                                                        <i-option v-for="item in packages" :value="item.value" :key="item.value">{{ item.label }}</i-option>
+                                                    </i-select>
                                                 </td>
                                             </tr>
                                             <tr v-if="currentApp">
@@ -112,7 +113,7 @@
                         <button class="btn btn-primary" v-on:click="startApp" :disabled="isStartingApp">Start app</button>
                         <button class="btn btn-primary" v-on:click="stopApp">Stop app</button>
                         <button class="btn btn-primary" v-on:click="takeScreenShot" :disabled="isTakingScreen">Take screen shot</button>
-                        <button class="btn btn-primary" v-on:click="dump" >Dump all</button>
+                        <!-- <button class="btn btn-primary" v-on:click="dump" >Dump all</button> -->
                     </div>
                 </div>
             </div>
@@ -168,9 +169,6 @@
     </div><!-- /.modal -->
 </div>
 
-
-<script src="/ui/plugin/android/static/vue.js"></script>
-<script src="/ui/plugin/android/static/vue-resource.js"></script>
 <script>
     var sio = io('/android-plugin');
     var apiUrl = '/ui/plugin/android/api';
@@ -186,7 +184,8 @@
             logs: [],
             screenShotUrl: null,
             isTakingScreen: false,
-            isStartingApp: false
+            isStartingApp: false,
+            packages: []
         },
         created: function () {
             this.getDevices();
@@ -203,6 +202,13 @@
                 getDevices();
             });
 
+        },
+        watch: {
+            packageName: function () {
+                if (this.currentDevice){
+                    this.getAppInfo();
+                }
+            }
         },
         methods: {
             scrollDownLog: function () {
@@ -245,6 +251,12 @@
                     this.getAppInfo();
                 }
             },
+            getAllPackages: function () {
+                this.$http.get(apiUrl + '/packages/'+this.currentDevice.device_id)
+                    .then(function (response) {
+                        this.packages = response.data;
+                    });
+            },
             showDeviceInfo: function (device_id) {
                 console.info('vue show device info ', device_id);
                 if (this.currentDevice !== this.devices[device_id]) {
@@ -254,6 +266,7 @@
                 }
                 this.getDeviceDetail();
                 this.takeScreenShot();
+                this.getAllPackages();
             },
             takeScreenShot: function () {
                 this.isTakingScreen = true;
@@ -274,13 +287,13 @@
                 this.$http.get(apiUrl + '/stop_app/'+this.currentDevice.device_id + '/' + this.packageName)
                     .then(function (response) {
                     });
-            },
-            dump: function () {
-                this.$http.get(apiUrl + '/dump/'+this.currentDevice.device_id)
-                    .then(function (response) {
-                        console.log(response)
-                    })
             }
+            // dump: function () {
+            //     this.$http.get(apiUrl + '/dump/'+this.currentDevice.device_id)
+            //         .then(function (response) {
+            //             console.log(response)
+            //         })
+            // }
         }
     })
 </script>
