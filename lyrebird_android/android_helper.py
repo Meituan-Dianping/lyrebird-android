@@ -312,6 +312,14 @@ class Device:
         if p.returncode == 0:
             return p.stdout.decode().split('\n')
 
+    def get_all_packages(self):
+        p = subprocess.run(f'{adb} -s {self.device_id} shell pm list packages', shell=True, stdout=subprocess.PIPE)
+        res = []
+        if p.returncode == 0:
+            output = p.stdout.decode()
+            res = [item.split(':')[1] for item in output.strip().split('\n') if item]
+        return res
+
     def package_info(self, package_name):
         p = subprocess.run(f'{adb} -s {self.device_id} shell dumpsys package {package_name}', shell=True,
                            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -401,6 +409,14 @@ def devices():
             'product': device_detail.product,
             'model': device_detail.model
         }
+        package_name = config.load().package_name
+        app = device.package_info(package_name)
+        if app.version_name:
+            item['app'] = {
+                'PackageName': package_name,
+                'startActivity': app.launch_activity,
+                'version': app.version_name
+            }
         if device_detail.device_info == None:
             continue
         for line in device_detail.device_info:

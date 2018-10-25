@@ -75,6 +75,17 @@ class MyUI(lyrebird.PluginView):
         if img_path:
             return jsonify({'imgUrl': '/ui/plugin/android/api/src/screenshot/%s?time=%s' % (device_id, time.time())})
 
+    def get_all_package(self, device_id):
+        device = device_service.devices.get(device_id)
+        packages = device.get_all_packages()
+        res = []
+        for package in packages:
+            res.append({
+                "value": package,
+                "label": package
+            })
+        return jsonify(res)
+
     def get_screenshot_image(self, device_id):
         return send_from_directory(tmp_dir, 'android_screenshot_%s.png' % device_id)
 
@@ -135,9 +146,8 @@ class MyUI(lyrebird.PluginView):
         device = device_service.devices.get(device_id)
         if not device:
             device = list(device_service.devices.values())[0]
-        conf = config.load()
-        app = device.package_info(conf.package_name)
-        device.stop_app(conf.package_name)
+        app = device.package_info(package_name)
+        device.stop_app(package_name)
         port = lyrebird.context.application.conf.get('mock.port')
         device.start_app(app.launch_activity, get_ip(), port)
         return context.make_ok_response()
@@ -255,6 +265,8 @@ class MyUI(lyrebird.PluginView):
         self.add_url_rule('/api/screenshot/<string:device_id>', view_func=self.take_screen_shot)
         # 获取截图
         self.add_url_rule('/api/src/screenshot/<string:device_id>', view_func=self.get_screenshot_image)
+        # 获取设备所有package
+        self.add_url_rule('/api/packages/<string:device_id>', view_func=self.get_all_package)
         # 启动应用
         self.add_url_rule('/api/start_app/<string:device_id>/<string:package_name>', view_func=self.start_app)
         self.add_url_rule('/api/stop_app/<string:device_id>/<string:package_name>', view_func=self.stop_app)
