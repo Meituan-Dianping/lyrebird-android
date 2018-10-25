@@ -413,7 +413,7 @@ def devices():
         app = device.package_info(package_name)
         if app.version_name:
             item['app'] = {
-                'PackageName': package_name,
+                'packageName': package_name,
                 'startActivity': app.launch_activity,
                 'version': app.version_name
             }
