@@ -79,3 +79,4 @@ lyrebird
 
     使用 ./lyrebird_android/debug.py 启动
 
+7. 
