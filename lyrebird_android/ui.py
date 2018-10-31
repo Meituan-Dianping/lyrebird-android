@@ -237,8 +237,8 @@ class MyUI(lyrebird.PluginView):
 
     def get_screenshots(self, message):
         screenshot_list = []
-        for device_id in device_service.devices:
-            device_detail = device_service.devices[device_id]
+        for device_id in message:
+            device_detail = device_service.devices.get(device_id)
             screenshot_path = device_detail.take_screen_shot()
             item = {}
             item['id'] = device_id
