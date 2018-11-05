@@ -13,6 +13,7 @@ device_service = DeviceService()
 storage = lyrebird.get_plugin_storage()
 tmp_dir = os.path.abspath(os.path.join(storage, 'tmp'))
 anr_dir = os.path.abspath(os.path.join(storage, 'anr'))
+screenshot_dir = os.path.abspath(os.path.join(storage, 'screenshot'))
 
 if not os.path.exists(tmp_dir):
     os.makedirs(tmp_dir)
@@ -71,9 +72,10 @@ class MyUI(lyrebird.PluginView):
 
     def take_screen_shot(self, device_id):
         device = device_service.devices.get(device_id)
-        img_path = device.take_screen_shot()
-        if img_path:
-            return jsonify({'imgUrl': '/ui/plugin/android/api/src/screenshot/%s?time=%s' % (device_id, time.time())})
+        img_info = device.take_screen_shot()
+        timestrap = img_info.get('timestrap')
+        if img_info.get('screen_shot_file'):
+            return jsonify({'imgUrl': f'/ui/plugin/android/api/src/screenshot/{device_id}?time={timestrap}'})
 
     def get_all_package(self, device_id):
         device = device_service.devices.get(device_id)
@@ -87,7 +89,11 @@ class MyUI(lyrebird.PluginView):
         return jsonify(res)
 
     def get_screenshot_image(self, device_id):
-        return send_from_directory(tmp_dir, 'android_screenshot_%s.png' % device_id)
+        if request.args.get('time'):
+            timestrap = int(request.args.get('time'))
+            return send_from_directory(screenshot_dir, f'android_screenshot_{device_id}_{timestrap}.png')
+        else: 
+            return None
 
     def make_dump_data(self, path):
         device_data = {}
@@ -239,12 +245,12 @@ class MyUI(lyrebird.PluginView):
         screenshot_list = []
         for device_id in message:
             device_detail = device_service.devices.get(device_id)
-            screenshot_path = device_detail.take_screen_shot()
+            screenshot_detail = device_detail.take_screen_shot()
             item = {}
             item['id'] = device_id
             item['screenshot'] = {
-                'name': os.path.basename(screenshot_path),
-                'path': screenshot_path
+                'name': os.path.basename(screenshot_detail.get('screen_shot_file')),
+                'path': screenshot_detail.get('screen_shot_file')
             }
             screenshot_list.append(item)
         lyrebird.publish('android.screenshot', screenshot_list)
