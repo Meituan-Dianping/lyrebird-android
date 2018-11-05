@@ -242,17 +242,24 @@ class MyUI(lyrebird.PluginView):
         return app_info_file_path
 
     def get_screenshots(self, message):
+        if message.get('cmd') != 'screenshot':
+            return
         screenshot_list = []
-        for device_id in message:
+        device_list = message.get('id')
+        for device_id in device_list:
             device_detail = device_service.devices.get(device_id)
+            if not device_detail:
+                continue
             screenshot_detail = device_detail.take_screen_shot()
-            item = {}
-            item['id'] = device_id
-            item['screenshot'] = {
-                'name': os.path.basename(screenshot_detail.get('screen_shot_file')),
-                'path': screenshot_detail.get('screen_shot_file')
-            }
-            screenshot_list.append(item)
+            screenshot_list.append(
+                {
+                    'id': device_id,
+                    'screenshot': {
+                        'name': os.path.basename(screenshot_detail.get('screen_shot_file')),
+                        'path': screenshot_detail.get('screen_shot_file')
+                    }
+                }
+            )
         lyrebird.publish('android.screenshot', screenshot_list)
 
     def on_create(self):
