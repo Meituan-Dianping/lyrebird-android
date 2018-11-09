@@ -356,7 +356,7 @@ class Device:
                 'device_id': self.device_id,
                 'timestrap': timestrap
             })
-        return ''
+        return {}
 
     def start_app(self, start_activity, ip, port):
         p = subprocess.run(f'{adb} -s {self.device_id} shell am start -n {start_activity} --es mock http://{ip}:{port}/mock/ --es closeComet true', shell=True)
