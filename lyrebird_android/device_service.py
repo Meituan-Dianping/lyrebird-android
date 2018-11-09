@@ -1,3 +1,5 @@
+import os
+import shutil
 from lyrebird import context
 from . import android_helper
 
@@ -17,6 +19,7 @@ class DeviceService:
         self.status = self.READY
         self.handle_interval = 1
         self.devices = {}
+        self.reset_screenshot_dir()
         print('DeviceService OnCreate')
 
     def devices_to_dict(self):
@@ -49,3 +52,8 @@ class DeviceService:
                 self.devices[_device_id].start_log()
             else:
                 self.devices[_device_id].stop_log()
+
+    def reset_screenshot_dir(self):
+        if os.path.exists(android_helper.screenshot_dir):
+            shutil.rmtree(android_helper.screenshot_dir)
+            print('Android device log file reset')

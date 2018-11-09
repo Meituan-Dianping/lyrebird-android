@@ -26,6 +26,7 @@ storage = lyrebird.get_plugin_storage()
 tmp_dir = os.path.abspath(os.path.join(storage, 'tmp'))
 anr_dir = os.path.abspath(os.path.join(storage, 'anr'))
 crash_dir = os.path.abspath(os.path.join(storage, 'crash'))
+screenshot_dir = os.path.abspath(os.path.join(storage, 'screenshot'))
 
 if not os.path.exists(tmp_dir):
     os.makedirs(tmp_dir)
@@ -107,7 +108,7 @@ class Device:
         self._log_filtered_file = None
         self._crash_filtered_file = None
         self._anr_filtered_file = None
-        self._screen_shot_file = os.path.abspath(os.path.join(tmp_dir, 'android_screenshot_%s.png' % self.device_id))
+        self._screen_shot_file = None
         self._anr_file = None
         self._crash_file_list = []
         self._device_info = None
@@ -344,9 +345,18 @@ class Device:
             self._log_process = None
 
     def take_screen_shot(self):
-        p = subprocess.run(f'{adb} -s {self.device_id} exec-out screencap -p > {tmp_dir}/android_screenshot_{self.device_id}.png', shell=True)
+        if not os.path.exists(screenshot_dir):
+            os.makedirs(screenshot_dir)
+        timestrap = int(time.time())
+        screen_shot_file = os.path.abspath(os.path.join(screenshot_dir, f'android_screenshot_{self.device_id}_{timestrap}.png'))
+        p = subprocess.run(f'{adb} -s {self.device_id} exec-out screencap -p > {screen_shot_file}', shell=True)
         if p.returncode == 0:
-            return os.path.abspath(os.path.join(tmp_dir, f'android_screenshot_{self.device_id}.png'))
+            return dict({
+                'screen_shot_file': screen_shot_file,
+                'device_id': self.device_id,
+                'timestrap': timestrap
+            })
+        return {}
 
     def start_app(self, start_activity, ip, port):
         p = subprocess.run(f'{adb} -s {self.device_id} shell am start -n {start_activity} --es mock http://{ip}:{port}/mock/ --es closeComet true', shell=True)
