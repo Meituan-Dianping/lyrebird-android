@@ -400,6 +400,14 @@ class Device:
             if line.split('=')[0] == 'init':
                 resolution = line.split('=')[1]
         return resolution
+    
+    def get_release_version(self):
+        p = subprocess.run(f'{adb} -s {self.device_id} shell getprop ro.build.version.release', shell=True, \
+                        stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        if p.returncode != 0:
+            raise ADBError(p.stderr.decode())
+        release_version = p.stdout.decode().strip()
+        return release_version
 
     def to_dict(self):
         device_info = {k: self.__dict__[k] for k in self.__dict__ if not k.startswith('_')}
@@ -453,9 +461,9 @@ def devices():
         item['info'] = {
             'product': device_detail.product,
             'model': device_detail.model,
-            'os': device.to_dict().get('releaseVersion'),
-            'ip': device.get_device_ip(),
-            'resolution': device.get_device_resolution()
+            'os': device_detail.get_release_version(),
+            'ip': device_detail.get_device_ip(),
+            'resolution': device_detail.get_device_resolution()
         }
         package_name = config.load().package_name
         app = device.package_info(package_name)
