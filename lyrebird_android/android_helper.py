@@ -371,43 +371,44 @@ class Device:
         if p.returncode != 0:
             raise ADBError(p.stderr.decode())
         output = [line.strip() for line in p.stdout.decode().strip().split('\n')]
-        for i in range(len(output)):
-            line = output[i]
-            if line and line.split()[0] == 'wlan0':
+        for index, char in enumerate(output):
+            if char and char.startswith('wlan0'):
                 # inet_addr, which we need, is in the next line of 'wlan0'
-                inet_addr = output[i+1].split()
+                inet_addr_str = output[index+1]
                 break
-        for line in inet_addr:
+        if not inet_addr_str:
+            raise ADBError('Find wlan0 error')
+        for ip_str in inet_addr_str.split():
             # example of inet_addr: ['inet', 'addr:192.168.110.111', 'Bcast:192.168.111.255', 'Mask:255.255.254.0'],
-            if line.split(':')[0] == 'addr':
-                ip = line.split(':')[1]
-        return ip
-    
+            if ip_str.startswith('addr:'):
+                return ip_str[len('addr:'):]
+        raise ADBError('Find internet address error')
+
     def get_device_resolution(self):
         p = subprocess.run(f'{adb} -s {self.device_id} shell dumpsys window displays', shell=True, \
                         stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         if p.returncode != 0:
             raise ADBError(p.stderr.decode())
         output = [line.strip() for line in p.stdout.decode().strip().split('\n')]
-        for i in range(len(output)):
-            line = output[i]
-            if 'Display' in line:
+        for index, char in enumerate(output):
+            if char and char.startswith('Display'):
                 # display, which we need, is in the next line of 'Display'
-                display = output[i+1].split()
+                display = output[index+1]
                 break
-        for line in display:
+        if not display:
+            raise ADBError('Find display info error')
+        for resolution_str in display.split():
             # example of display: ['init=1080x1920', '420dpi', 'cur=1080x1920'],
-            if line.split('=')[0] == 'init':
-                resolution = line.split('=')[1]
-        return resolution
+            if resolution_str.startswith('init'):
+                return resolution_str[len('init='):]
+        raise ADBError('Find display resolution error')
     
     def get_release_version(self):
         p = subprocess.run(f'{adb} -s {self.device_id} shell getprop ro.build.version.release', shell=True, \
                         stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         if p.returncode != 0:
             raise ADBError(p.stderr.decode())
-        release_version = p.stdout.decode().strip()
-        return release_version
+        return p.stdout.decode().strip()
 
     def to_dict(self):
         device_info = {k: self.__dict__[k] for k in self.__dict__ if not k.startswith('_')}
