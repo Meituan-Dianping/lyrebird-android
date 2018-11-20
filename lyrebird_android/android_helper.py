@@ -365,6 +365,41 @@ class Device:
     def stop_app(self, package_name):
         p = subprocess.run(f'{adb} -s {self.device_id} shell am force-stop {package_name}', shell=True)
         return True if p.returncode == 0 else False
+    
+    def get_device_ip(self):
+        p = subprocess.run(f'{adb} -s {self.device_id} shell ifconfig', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        if p.returncode != 0:
+            raise ADBError(p.stderr.decode())
+        output = [line.strip() for line in p.stdout.decode().strip().split('\n')]
+        for i in range(len(output)):
+            line = output[i]
+            if line and line.split()[0] == 'wlan0':
+                # inet_addr, which we need, is in the next line of 'wlan0'
+                inet_addr = output[i+1].split()
+                break
+        for line in inet_addr:
+            # example of inet_addr: ['inet', 'addr:192.168.110.111', 'Bcast:192.168.111.255', 'Mask:255.255.254.0'],
+            if line.split(':')[0] == 'addr':
+                ip = line.split(':')[1]
+        return ip
+    
+    def get_device_resolution(self):
+        p = subprocess.run(f'{adb} -s {self.device_id} shell dumpsys window displays', shell=True, \
+                        stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        if p.returncode != 0:
+            raise ADBError(p.stderr.decode())
+        output = [line.strip() for line in p.stdout.decode().strip().split('\n')]
+        for i in range(len(output)):
+            line = output[i]
+            if 'Display' in line:
+                # display, which we need, is in the next line of 'Display'
+                display = output[i+1].split()
+                break
+        for line in display:
+            # example of display: ['init=1080x1920', '420dpi', 'cur=1080x1920'],
+            if line.split('=')[0] == 'init':
+                resolution = line.split('=')[1]
+        return resolution
 
     def to_dict(self):
         device_info = {k: self.__dict__[k] for k in self.__dict__ if not k.startswith('_')}
@@ -417,7 +452,10 @@ def devices():
         item['id'] = device_id
         item['info'] = {
             'product': device_detail.product,
-            'model': device_detail.model
+            'model': device_detail.model,
+            'os': device.to_dict().get('releaseVersion'),
+            'ip': device.get_device_ip(),
+            'resolution': device.get_device_resolution()
         }
         package_name = config.load().package_name
         app = device.package_info(package_name)
@@ -429,10 +467,6 @@ def devices():
             }
         if device_detail.device_info == None:
             continue
-        for line in device_detail.device_info:
-            if 'ro.build.version.release' in line:
-                item['info']['os'] = line[line.rfind('[') + 1:line.rfind(']')].strip()
-                break
         devices_info.append(item)
 
     last_devices_info = lyrebird.state.get('android.device')

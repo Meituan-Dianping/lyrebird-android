@@ -50,7 +50,7 @@ class MyUI(lyrebird.PluginView):
         return jsonify(device_service.devices_to_dict())
 
     def device_detail(self, device_id):
-        return "\n".join(device_service.devices.get(device_id).device_info)
+        return jsonify(device_service.devices.get(device_id).device_info)
 
     def last_package_name(self):
         conf = config.load()
