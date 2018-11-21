@@ -376,10 +376,12 @@ class Device:
                 # inet_addr, which we need, is in the next line of 'wlan0'
                 inet_addr_str = output[index+1]
                 break
+        else:
+            inet_addr_str = ''
         if not inet_addr_str:
             raise ADBError('Find wlan0 error')
+        # example of inet_addr: 'inet addr:192.168.110.111 Bcast:192.168.111.255 Mask:255.255.254.0',
         for ip_str in inet_addr_str.split():
-            # example of inet_addr: ['inet', 'addr:192.168.110.111', 'Bcast:192.168.111.255', 'Mask:255.255.254.0'],
             if ip_str.startswith('addr:'):
                 return ip_str[len('addr:'):]
         raise ADBError('Find internet address error')
@@ -392,13 +394,15 @@ class Device:
         output = [line.strip() for line in p.stdout.decode().strip().split('\n')]
         for index, char in enumerate(output):
             if char and char.startswith('Display'):
-                # display, which we need, is in the next line of 'Display'
-                display = output[index+1]
+                # display_str, which we need, is in the next line of 'Display'
+                display_str = output[index+1]
                 break
-        if not display:
+        else:
+            display_str = ''
+        if not display_str:
             raise ADBError('Find display info error')
-        for resolution_str in display.split():
-            # example of display: ['init=1080x1920', '420dpi', 'cur=1080x1920'],
+        # example of display: 'init=1080x1920 420dpi cur=1080x1920 app=1080x1794 rng=1080x1017-1794x1731',
+        for resolution_str in display_str.split():
             if resolution_str.startswith('init'):
                 return resolution_str[len('init='):]
         raise ADBError('Find display resolution error')
@@ -438,58 +442,49 @@ def devices():
     res = subprocess.run(f'{adb} devices -l', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     output = res.stdout.decode()
     err_str = res.stderr.decode()
+
     # ADB command error
-    if len(output) <= 0 < len(err_str):
+    if res.returncode != 0:
         print('Get devices list error', err_str)
-        return []
-    
-    lines = [line for line in output.split('\n') if line]
-    # online_devices contains information for plugin own
+        return {}
+
     online_devices = {}
-    # devices_info contains information for bugit
-    devices_info = []
-    
-    # no device connected
+    lines = [line for line in output.split('\n') if line]
     if len(lines) > 1:
         for line in lines[1:]:
             device = Device.from_adb_line(line)
             online_devices[device.device_id] = device
 
-    for device_id in online_devices:
-        device_detail = online_devices[device_id]
-        item = {}
-        item['id'] = device_id
-        item['info'] = {
-            'product': device_detail.product,
-            'model': device_detail.model,
-            'os': device_detail.get_release_version(),
-            'ip': device_detail.get_device_ip(),
-            'resolution': device_detail.get_device_resolution()
-        }
-        package_name = config.load().package_name
-        app = device.package_info(package_name)
-        if app.version_name:
-            item['app'] = {
-                'packageName': package_name,
-                'startActivity': app.launch_activity,
-                'version': app.version_name
-            }
-        if device_detail.device_info == None:
-            continue
-        devices_info.append(item)
-
-    last_devices_info = lyrebird.state.get('android.device')
-    if last_devices_info:
-        last_devices_list = [last_device.get('id') for last_device in last_devices_info]
-    else:
-        last_devices_list = []
-
-    if devices_info:
-        devices_list = [on_device.get('id') for on_device in devices_info]
-    else:
-        devices_list = []
+    devices_list = [on_device for on_device in list(online_devices.keys())]
+    last_devices_str = lyrebird.state.get('android.device') if lyrebird.state.get('android.device') else []
+    last_devices_list = [last_device.get('id') for last_device in last_devices_str]
 
     if devices_list != last_devices_list:
-        lyrebird.publish('android.device', devices_info, state=True)
+        devices_info_list = []
+        for device_id in online_devices:
+            device_detail = online_devices[device_id]
+            if device_detail.device_info == None:
+                continue
+            item = {
+                'id': device_id,
+                'info': {
+                    'product': device_detail.product,
+                    'model': device_detail.model,
+                    'os': device_detail.get_release_version(),
+                    'ip': device_detail.get_device_ip(),
+                    'resolution': device_detail.get_device_resolution()
+                }
+            }
+            package_name = config.load().package_name
+            app = device.package_info(package_name)
+            if app.version_name:
+                item['app'] = {
+                    'packageName': package_name,
+                    'startActivity': app.launch_activity,
+                    'version': app.version_name
+                }
+            devices_info_list.append(item)  
+
+        lyrebird.publish('android.device', devices_info_list, state=True)
     
     return online_devices
