@@ -442,13 +442,13 @@ def devices():
     res = subprocess.run(f'{adb} devices -l', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     output = res.stdout.decode()
     err_str = res.stderr.decode()
+    online_devices = {}
 
     # ADB command error
     if res.returncode != 0:
         print('Get devices list error', err_str)
-        return {}
+        return online_devices
 
-    online_devices = {}
     lines = [line for line in output.split('\n') if line]
     if len(lines) > 1:
         for line in lines[1:]:
