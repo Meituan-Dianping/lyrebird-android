@@ -236,7 +236,6 @@
             },
             getDevices: function () {
                 this.$http.get(apiUrl + '/devices').then(function (response) {
-                    console.info("api/device got response", response.data);
                     this.devices = response.data;
                 });
             },
@@ -245,7 +244,6 @@
                 this.$http.get(apiUrl + '/device/' + this.currentDevice.device_id)
                     .then(function (response) {
                         this.currentDeviceDetail = response.data;
-                        console.log(response.data)
                     });
                 if (this.packageName){
                     this.getAppInfo();
@@ -265,8 +263,8 @@
                     sio.emit('log-start', this.currentDevice.device_id)
                 }
                 this.getDeviceDetail();
-                this.takeScreenShot();
                 this.getAllPackages();
+                this.takeScreenShot();
             },
             takeScreenShot: function () {
                 this.isTakingScreen = true;

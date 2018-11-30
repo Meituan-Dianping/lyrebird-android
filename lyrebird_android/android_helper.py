@@ -367,24 +367,22 @@ class Device:
         return True if p.returncode == 0 else False
     
     def get_device_ip(self):
-        p = subprocess.run(f'{adb} -s {self.device_id} shell ifconfig', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        p = subprocess.run(f'{adb} -s {self.device_id} shell ip -b -4 address', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         if p.returncode != 0:
             raise ADBError(p.stderr.decode())
         output = [line.strip() for line in p.stdout.decode().strip().split('\n')]
-        for index, char in enumerate(output):
-            if char and char.startswith('wlan0'):
-                # inet_addr, which we need, is in the next line of 'wlan0'
-                inet_addr_str = output[index+1]
+        for net_line in output:
+            if 'wlan0' in net_line:
+                ipv4_list = net_line.split()
                 break
         else:
-            inet_addr_str = ''
-        if not inet_addr_str:
-            raise ADBError('Find wlan0 error')
-        # example of inet_addr: 'inet addr:192.168.110.111 Bcast:192.168.111.255 Mask:255.255.254.0',
-        for ip_str in inet_addr_str.split():
-            if ip_str.startswith('addr:'):
-                return ip_str[len('addr:'):]
-        raise ADBError('Find internet address error')
+            return ''
+        for index, char in enumerate(ipv4_list):
+            # ipv4_address, which we need, is behind of 'inet'
+            if char == 'inet':
+                # example of ipv4_address: 192.168.110.111/23
+                return ipv4_list[index+1].split('/')[0]
+        return ''
 
     def get_device_resolution(self):
         p = subprocess.run(f'{adb} -s {self.device_id} shell dumpsys window displays', shell=True, \
@@ -398,14 +396,12 @@ class Device:
                 display_str = output[index+1]
                 break
         else:
-            display_str = ''
-        if not display_str:
-            raise ADBError('Find display info error')
+            return ''
         # example of display: 'init=1080x1920 420dpi cur=1080x1920 app=1080x1794 rng=1080x1017-1794x1731',
         for resolution_str in display_str.split():
             if resolution_str.startswith('init'):
                 return resolution_str[len('init='):]
-        raise ADBError('Find display resolution error')
+        return ''
     
     def get_release_version(self):
         p = subprocess.run(f'{adb} -s {self.device_id} shell getprop ro.build.version.release', shell=True, \
