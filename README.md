@@ -1,5 +1,5 @@
 # Lyrebird Android plugin
-[![Build Status](https://travis-ci.org/meituan/lyrebird-android.svg?branch=master)](https://travis-ci.org/meituan/lyrebird-android)
+[![Build Status](https://travis-ci.org/Meituan-Dianping/lyrebird-android.svg?branch=master)](https://travis-ci.org/Meituan-Dianping/lyrebird-android)
 [![PyPI](https://img.shields.io/pypi/v/lyrebird-android.svg)](https://pypi.python.org/pypi/lyrebird-android)
 ![PyPI](https://img.shields.io/pypi/pyversions/lyrebird.svg)
 ![GitHub](https://img.shields.io/github/license/meituan/lyrebird-android.svg)
