@@ -1,17 +1,20 @@
 <div id="app" xmlns="http://www.w3.org/1999/html">
 
-    <div class="row">
+    <div class="row" v-cloak>
         <div class="col-md-3">
-            <div class="box box-solid">
+            <div class="box box-solid" style="margin-top:5px;background:#f8f8f9">
                 <div class="box-header">
                     <label>Devices</label>
                 </div>
-                <div class="box-body">
+                <div v-if="Object.keys(devices).length" class="box-body">
                     <ul class="nav nav-pills nav-stacked">
-                        <li v-for="(device, id) in devices">
-                            <a class="btn btn-block btn-default" v-on:click="showDeviceInfo(id)">{{ id }}</a>
+                        <li v-for="(device, id) in devices" style="padding:3px;border:none">
+                            <i-button style="background: #e8eaec" long v-on:click="showDeviceInfo(id)">{{ id }}</i-button>
                         </li>
                     </ul>
+                </div>
+                <div v-else class="box-body">
+                    <p style="text-align:center">No devices</p>
                 </div>
             </div>
 
@@ -295,3 +298,9 @@
         }
     })
 </script>
+
+<style>
+[v-cloak] {
+    display: none;
+}
+</style>
