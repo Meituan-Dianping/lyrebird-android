@@ -40,7 +40,7 @@ lyrebird
   使用时，通过USB线连接手机和电脑即可。
 
 ## 获取当前设备信息
-连接设备打开调试模式，左侧列表会显示已接入的设备id。点击设备id可查看更多信息。
+连接设备并打开调试模式，左侧会展示出已接入的设备id。点击设备id可查看更多信息。
 <img src="./image/deviceInfo.gif" style="width:800px" />
 
 > more detail 可查看更多设备信息。
