@@ -36,7 +36,7 @@ class DeviceService:
         self.status = self.RUNNING
         print('Android device listener start')
         while self.status == self.RUNNING:
-            try:                
+            try:           
                 self.handle()
                 context.application.socket_io.sleep(self.handle_interval)
             except Exception:
