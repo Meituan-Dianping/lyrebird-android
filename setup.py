@@ -7,7 +7,7 @@ with open(os.path.join(here, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='lyrebird-android',
-    version='0.2.6',
+    version='0.2.7',
     packages=['lyrebird_android'],
     url='https://github.com/meituan/lyrebird-android',
     author='HBQA',
