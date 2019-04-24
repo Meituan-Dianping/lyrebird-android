@@ -1,7 +1,11 @@
 import os
 import shutil
-from lyrebird import context
+from lyrebird import context, get_logger
 from . import android_helper
+import traceback
+
+
+logger = get_logger()
 
 
 class DeviceService:
@@ -32,8 +36,11 @@ class DeviceService:
         self.status = self.RUNNING
         print('Android device listener start')
         while self.status == self.RUNNING:
-            self.handle()
-            context.application.socket_io.sleep(self.handle_interval)
+            try:                
+                self.handle()
+                context.application.socket_io.sleep(self.handle_interval)
+            except Exception:
+                logger.error("DeviceService Crash:\n"+traceback.format_exc())
         self.status = self.STOP
         print('Android device listener stop')
 
