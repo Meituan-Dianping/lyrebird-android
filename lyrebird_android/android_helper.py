@@ -222,7 +222,7 @@ class Device:
 
         anr_package = line.strip().split()[-2]
         anr_file_name = os.path.join(anr_dir, f'android_anr_{self.device_id}_{anr_package}.log')
-        p = subprocess.run(f'{adb} -s {self.device_id} pull "/data/anr/traces.txt" {anr_file_name}', 
+        p = subprocess.run(f'{adb} -s {self.device_id} pull "/data/anr/traces.txt" {anr_file_name}',
                             shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         if p.returncode != 0:
             logger.error('Catch ANR log error!\n' + p.stderr)
