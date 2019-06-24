@@ -66,10 +66,6 @@ class MyUI(lyrebird.PluginView):
         app = device.package_info(package_name)
         return jsonify({'launchActivity': app.launch_activity, 'version': app.version_name, 'detail': app.raw})
 
-    def logcat_start(self, device_id):
-        print('Logcat start', device_id)
-        device_service.start_log_recorder(device_id)
-
     def take_screen_shot(self, device_id):
         device = device_service.devices.get(device_id)
         img_info = device.take_screen_shot()
@@ -262,8 +258,6 @@ class MyUI(lyrebird.PluginView):
         lyrebird.publish('android.screenshot', screenshot_list)
 
     def on_create(self):
-        # for overbridge
-        self.add_url_rule('/api/info', view_func=self.info)
         # Dump所有信息
         self.add_url_rule('/api/dump/<string:device_id>', view_func=self.dump)
         # 获取设备列表
@@ -284,8 +278,6 @@ class MyUI(lyrebird.PluginView):
         self.add_url_rule('/api/stop_app/<string:device_id>/<string:package_name>', view_func=self.stop_app)
         # 获取资源信息
         self.add_url_rule('/api/dump', view_func=self.dump_data)
-        # 启动日志事件
-        self.on_event('log-start', self.logcat_start, '/android-plugin')
         # 启动设备监听服务
         lyrebird.start_background_task(device_service.run)
         # 订阅频道 android.cmd
@@ -301,5 +293,5 @@ def get_ip():
     :return: IP地址字符串
     """
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    s.connect(('google.com', 80))
+    s.connect(('bing.com', 80))
     return s.getsockname()[0]

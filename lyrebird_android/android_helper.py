@@ -104,13 +104,9 @@ class Device:
         self._log_process = None
         self._log_cache = []
         self._log_crash_cache = []
+        self._crashed_pid = None
+        self._crashed_package = None
         self._log_file = None
-        self._log_filtered_file = None
-        self._crash_filtered_file = None
-        self._anr_filtered_file = None
-        self._screen_shot_file = None
-        self._anr_file = None
-        self._crash_file_list = []
         self._device_info = None
         self._app_info = None
         self.start_catch_log = False
@@ -118,30 +114,6 @@ class Device:
     @property
     def log_file(self):
         return self._log_file
-    
-    @property
-    def log_filtered_file(self):
-        return self._log_filtered_file
-
-    @property
-    def crash_filtered_file(self):
-        return self._crash_filtered_file
-
-    @property
-    def anr_filtered_file(self):
-        return self._anr_filtered_file
-
-    @property
-    def screen_shot_file(self):
-        return self._screen_shot_file
-
-    @property
-    def anr_file(self):
-        return self._anr_file
-
-    @property
-    def crash_file_list(self):
-        return self._crash_file_list
 
     @classmethod
     def from_adb_line(cls, line):
@@ -170,90 +142,26 @@ class Device:
     def start_log(self):
         self.stop_log()
 
-        log_file_name = 'android_log_%s.log' % self.device_id
-        self._log_file = os.path.abspath(os.path.join(tmp_dir, log_file_name))
+        self._log_file = os.path.abspath(os.path.join(tmp_dir, f'android_log_{self.device_id}.log'))
 
         p = subprocess.Popen(f'{adb} -s {self.device_id} logcat', shell=True, stdout=subprocess.PIPE)
         
-        conf = config.load()
-        package_name = conf.package_name
-        pid_target = []
-
-        p2 = subprocess.run(f'{adb} -s {self.device_id} shell ps | grep {package_name}', shell=True,
-                           stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        
-        pid_list = p2.stdout.decode().split('\n')
-        for p2_line in pid_list:
-            if p2_line:
-                pid_target.append(str(p2_line).strip().split( )[1])
-        
-        log_filtered_file_name = 'android_log_%s_%s.log' % (self.device_id, package_name)
-        self._log_filtered_file = os.path.abspath(os.path.join(tmp_dir, log_filtered_file_name))
-
-        crash_filtered_file_name = 'android_crash_%s_%s.log' % (self.device_id, package_name)
-        self._crash_filtered_file = os.path.abspath(os.path.join(crash_dir, crash_filtered_file_name))
-
-        anr_filtered_file_name = 'android_anr_%s_%s.log' % (self.device_id, package_name)
-        self._anr_filtered_file = os.path.abspath(os.path.join(anr_dir, anr_filtered_file_name))
-        
         def log_handler(logcat_process):
             log_file = codecs.open(self._log_file, 'w', 'utf-8')
-            log_filtered_file = codecs.open(self._log_filtered_file, 'w', 'utf-8')
-            crash_filtered_file = codecs.open(self._crash_filtered_file, 'w', 'utf-8')
-            anr_filtered_file = codecs.open(self._anr_filtered_file, 'w', 'utf-8')
+            self._log_process = logcat_process
 
             while True:
                 line = logcat_process.stdout.readline()
+                line = line.decode(encoding='UTF-8', errors='ignore')
 
                 if not line:
                     context.application.socket_io.emit('log', self._log_cache, namespace='/android-plugin')
                     log_file.close()
-                    log_filtered_file.close()
-                    crash_filtered_file.close()
-                    anr_filtered_file.close()
                     return
 
-                if self.log_filter(line, pid_target):
-                    log_filtered_file.writelines(line.decode(encoding='UTF-8', errors='ignore'))
-                    log_filtered_file.flush()
-                
-                if self.crash_checker(line) and self.log_filter(line, pid_target):
-                    crash_filtered_file.writelines(line.decode(encoding='UTF-8', errors='ignore'))
-                    crash_filtered_file.flush()
-                    # send Android.crash event
-                    item = [{
-                            'id':self.device_id, 
-                            'crash':[
-                                {'name':'crash_log', 'path':self._crash_filtered_file}, 
-                            ] 
-                        }]
-                    lyrebird.publish('android.crash', item)
-
-                if self.anr_checker(line):
-                    anr_file_name = os.path.join(anr_dir, 'android_anr_%s.log' % self.device_id)
-                    with codecs.open(anr_file_name, 'r', 'utf-8') as f:
-                        anr_headline = f.readline()
-                        anr_headline = f.readline()
-                    
-                    p4 = subprocess.run(f'{adb} -s {self.device_id} shell ps | grep {package_name}', shell=True,
-                           stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-                    pid_list = p4.stdout.decode().split('\n')
-                    for p2_line in pid_list:
-                         if p2_line:
-                            pid_target.append(str(p2_line).strip().split( )[1])
-                    if str(anr_headline).strip().split()[2] in pid_target:
-                        subprocess.run(f'{adb} -s {self.device_id} pull "/data/anr/traces.txt" {self._anr_filtered_file}', shell=True, stdout=subprocess.PIPE)
-
-                        # send Android.crash event
-                        item = [{
-                            'id':self.device_id, 
-                            'crash':[
-                                {'name':'anr_log', 'path':self._anr_filtered_file}, 
-                            ] 
-                        }]
-                        lyrebird.publish('android.crash', item)
-                        
-                self._log_cache.append(line.decode(encoding='UTF-8', errors='ignore'))
+                self._log_cache.append(line)
+                self.crash_checker(line)
+                self.anr_checker(line)
 
                 if len(self._log_cache) >= 10:
                     context.application.socket_io.emit('log', self._log_cache, namespace='/android-plugin')
@@ -262,45 +170,88 @@ class Device:
                     self._log_cache = []
         threading.Thread(target=log_handler, args=(p,)).start()
 
-    def log_filter(self, line, pid_target):
-        if not line:
-            return False
-        line_list = str(line).strip().split()
-        if len(line_list) <= 2:
-            return False
-        if line_list[2] not in pid_target:
-            return False
-        return True
+    def get_package_from_pid(self, pid):
+        p = subprocess.run(f'{adb} -s {self.device_id} shell ps | grep {pid}', shell=True,
+                           stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        if not p.stdout.decode():
+            return ''
+        return [line for line in p.stdout.decode().strip().split()][-1]
 
     def crash_checker(self, line):
-        crash_log_path = os.path.join(crash_dir, 'android_crash_%s.log' % self.device_id)
 
-        if str(line).find('FATAL EXCEPTION') > 0:
+        if line.find('FATAL EXCEPTION') > 0:
             self.start_catch_log = True
-            self._log_crash_cache.append(line.decode(encoding='UTF-8', errors='ignore'))
-            return True
-        elif str(line).find('AndroidRuntime') > 0 and self.start_catch_log:
-            self._log_crash_cache.append(line.decode(encoding='UTF-8', errors='ignore'))
-            return True
-        else:
-            self.start_catch_log = False
-            with codecs.open(crash_log_path, 'w', 'utf-8') as f:
+            _crashed_pid = [_ for _ in line.strip().split()][2]
+            self._crashed_package = self.get_package_from_pid(_crashed_pid)
+            self._log_crash_cache.append(line)
+
+        elif line.find('AndroidRuntime') > 0 and self.start_catch_log:
+            self._log_crash_cache.append(line)
+
+        elif self.start_catch_log:
+            _crash_file = os.path.abspath(os.path.join(
+                crash_dir,
+                f'android_crash_{self.device_id}_{self._crashed_package}.log'
+            ))
+
+            with codecs.open(_crash_file, 'w', 'utf-8') as f:
                 f.write(''.join(self._log_crash_cache))
-            return False
+
+            target_package_name = config.load().package_name
+            if self._crashed_package == target_package_name:
+                crash_info = {
+                    'device_id':self.device_id,
+                    'log': self._log_crash_cache,
+                    'log_file_path': _crash_file
+                }
+                lyrebird.publish('android.crash', crash_info)
+
+                title = f'Android device {self.device_id} crashed!\n'
+                desc = title + 'Crash log:\n\n' + ''.join(self._log_crash_cache)
+                lyrebird.event.issue(title, desc)
+
+            self.start_catch_log = False
+            self._log_crash_cache = []
         
+        else:
+            return
 
     def anr_checker(self, line):
-        if str(line).find('ANR') > 0 and str(line).find('ActivityManager') > 0:
-            self.get_anr_log()
-            return True
-        else:
-            return False
+        if ('ANR' not in line) or ('ActivityManager' not in line):
+            return
 
-    def get_anr_log(self):
-        anr_file_name = os.path.join(anr_dir, 'android_anr_%s.log' % self.device_id)
-        p = subprocess.run(f'{adb} -s {self.device_id} pull "/data/anr/traces.txt" {anr_file_name}', shell=True, stdout=subprocess.PIPE)
-        if p.returncode == 0:
-            self._anr_file = os.path.abspath(anr_file_name)
+        anr_package = line.strip().split()[-2]
+        anr_file_name = os.path.join(anr_dir, f'android_anr_{self.device_id}_{anr_package}.log')
+        p = subprocess.run(f'{adb} -s {self.device_id} pull "/data/anr/traces.txt" {anr_file_name}', 
+                            shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        if p.returncode != 0:
+            logger.error('Catch ANR log error!\n' + p.stderr)
+            return
+
+        # check whether pid of the anr_package exists or not
+        with codecs.open(anr_file_name, 'r', 'utf-8') as f:
+            anr_pid_line = f.readline()
+            # expected anr_pid_line: ----- pid 21335 at 2019-06-24 16:21:15 -----
+            while 'pid' not in anr_pid_line:
+                anr_pid_line = f.readline()
+        _anr_pid = anr_pid_line.strip().split()[2]
+        anr_package = self.get_package_from_pid(_anr_pid)
+
+        target_package_name = config.load().package_name
+        if anr_package == target_package_name:
+            with codecs.open(anr_file_name, 'r', 'utf-8') as f:
+                log_anr_cache = f.readlines()
+            anr_info = {
+                'device_id':self.device_id,
+                'log': log_anr_cache,
+                'log_file_path': anr_file_name
+            }
+            lyrebird.publish('android.crash', anr_info)
+
+            title = f'Application {anr_package} not responding on Android device {self.device_id}!\n'
+            desc = title + 'ANR log:\n\n' + ''.join(log_anr_cache)
+
+            lyrebird.event.issue(title, desc)
 
     @property
     def device_info(self):
@@ -442,7 +393,7 @@ def devices():
 
     # ADB command error
     if res.returncode != 0:
-        print('Get devices list error', err_str)
+        logger.error('Get devices list error' + err_str)
         return online_devices
 
     lines = [line for line in output.split('\n') if line]

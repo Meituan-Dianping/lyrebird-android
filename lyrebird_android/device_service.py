@@ -24,7 +24,7 @@ class DeviceService:
         self.handle_interval = 1
         self.devices = {}
         self.reset_screenshot_dir()
-        print('DeviceService OnCreate')
+        logger.info('DeviceService OnCreate')
 
     def devices_to_dict(self):
         json_obj = {}
@@ -34,7 +34,7 @@ class DeviceService:
 
     def run(self):
         self.status = self.RUNNING
-        print('Android device listener start')
+        logger.info('Android device listener start')
         while self.status == self.RUNNING:
             try:
                 self.handle()
@@ -42,7 +42,7 @@ class DeviceService:
             except Exception:
                 logger.error("DeviceService Crash:\n"+traceback.format_exc())
         self.status = self.STOP
-        print('Android device listener stop')
+        logger.info('Android device listener stop')
 
     def handle(self):
         devices = android_helper.devices()
@@ -50,17 +50,16 @@ class DeviceService:
             if len([k for k in devices if k not in self.devices]) == 0:
                 return
 
-        self.devices = devices
-        context.application.socket_io.emit('device', namespace='/android-plugin')
+        for _device_id in [k for k in devices if k not in self.devices]:
+            self.devices = devices
+            self.devices[_device_id].start_log()
+        for _device_id in [k for k in self.devices if k not in devices]:
+            self.devices[_device_id].stop_log()
+            self.devices = devices
 
-    def start_log_recorder(self, device_id):
-        for _device_id in self.devices:
-            if _device_id == device_id:
-                self.devices[_device_id].start_log()
-            else:
-                self.devices[_device_id].stop_log()
+        context.application.socket_io.emit('device', namespace='/android-plugin')
 
     def reset_screenshot_dir(self):
         if os.path.exists(android_helper.screenshot_dir):
             shutil.rmtree(android_helper.screenshot_dir)
-            print('Android device log file reset')
+            logger.info('Android device log file reset')
