@@ -24,7 +24,7 @@ class DeviceService:
         self.handle_interval = 1
         self.devices = {}
         self.reset_screenshot_dir()
-        logger.info('DeviceService OnCreate')
+        logger.debug('DeviceService OnCreate')
 
     def devices_to_dict(self):
         json_obj = {}
@@ -34,7 +34,7 @@ class DeviceService:
 
     def run(self):
         self.status = self.RUNNING
-        logger.info('Android device listener start')
+        logger.debug('Android device listener start')
         while self.status == self.RUNNING:
             try:
                 self.handle()
@@ -42,7 +42,7 @@ class DeviceService:
             except Exception:
                 logger.error("DeviceService Crash:\n"+traceback.format_exc())
         self.status = self.STOP
-        logger.info('Android device listener stop')
+        logger.debug('Android device listener stop')
 
     def handle(self):
         devices = android_helper.devices()
@@ -62,4 +62,4 @@ class DeviceService:
     def reset_screenshot_dir(self):
         if os.path.exists(android_helper.screenshot_dir):
             shutil.rmtree(android_helper.screenshot_dir)
-            logger.info('Android device log file reset')
+            logger.debug('Android device log file reset')
