@@ -155,7 +155,7 @@ class Device:
                 line = line.decode(encoding='UTF-8', errors='ignore')
 
                 if not line:
-                    context.application.socket_io.emit('log', self._log_cache, namespace='/android-plugin')
+                    lyrebird.emit('log', self._log_cache)
                     log_file.close()
                     return
 
@@ -164,7 +164,7 @@ class Device:
                 self.anr_checker(line)
 
                 if len(self._log_cache) >= 10:
-                    context.application.socket_io.emit('log', self._log_cache, namespace='/android-plugin')
+                    lyrebird.emit('log', self._log_cache)
                     log_file.writelines(self._log_cache)
                     log_file.flush()
                     self._log_cache = []
@@ -175,7 +175,10 @@ class Device:
                            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         if not p.stdout.decode():
             return ''
-        return [line for line in p.stdout.decode().strip().split()][-1]
+        package = [line for line in p.stdout.decode().strip().split()][-1]
+        package = package.replace(':', '')
+        package = package.replace('/', '')
+        return package
 
     def crash_checker(self, line):
 
@@ -298,14 +301,14 @@ class Device:
     def take_screen_shot(self):
         if not os.path.exists(screenshot_dir):
             os.makedirs(screenshot_dir)
-        timestrap = int(time.time())
-        screen_shot_file = os.path.abspath(os.path.join(screenshot_dir, f'android_screenshot_{self.device_id}_{timestrap}.png'))
+        timestamp = int(time.time())
+        screen_shot_file = os.path.abspath(os.path.join(screenshot_dir, f'android_screenshot_{self.device_id}_{timestamp}.png'))
         p = subprocess.run(f'{adb} -s {self.device_id} exec-out screencap -p > {screen_shot_file}', shell=True)
         if p.returncode == 0:
             return dict({
                 'screen_shot_file': screen_shot_file,
                 'device_id': self.device_id,
-                'timestrap': timestrap
+                'timestamp': timestamp
             })
         return {}
 
@@ -402,36 +405,4 @@ def devices():
             device = Device.from_adb_line(line)
             online_devices[device.device_id] = device
 
-    devices_list = [on_device for on_device in list(online_devices.keys())]
-    last_devices_str = lyrebird.state.get('android.device') if lyrebird.state.get('android.device') else []
-    last_devices_list = [last_device.get('id') for last_device in last_devices_str]
-
-    if devices_list != last_devices_list:
-        devices_info_list = []
-        for device_id in online_devices:
-            device_detail = online_devices[device_id]
-            if device_detail.device_info == None:
-                continue
-            item = {
-                'id': device_id,
-                'info': {
-                    'product': device_detail.product,
-                    'model': device_detail.model,
-                    'os': device_detail.get_release_version(),
-                    'ip': device_detail.get_device_ip(),
-                    'resolution': device_detail.get_device_resolution()
-                }
-            }
-            package_name = config.load().package_name
-            app = device.package_info(package_name)
-            if app.version_name:
-                item['app'] = {
-                    'packageName': package_name,
-                    'startActivity': app.launch_activity,
-                    'version': app.version_name
-                }
-            devices_info_list.append(item)  
-
-        lyrebird.publish('android.device', devices_info_list, state=True)
-    
     return online_devices
