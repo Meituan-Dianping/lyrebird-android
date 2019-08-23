@@ -1,5 +1,4 @@
 import os
-import time
 import socket
 import codecs
 import lyrebird
@@ -80,7 +79,7 @@ def get_screenshot_image(device_id):
     if request.args.get('time'):
         timestamp = int(request.args.get('time'))
         return send_from_directory(screenshot_dir, f'android_screenshot_{device_id}_{timestamp}.png')
-    else: 
+    else:
         return None
 
 def make_dump_data(path):
@@ -201,7 +200,6 @@ def get_device_cpuinfo_file_path(device, device_id):
     device_cpuinfo_file.close()
 
     return device_cpuinfo_file_path
-    
 
 def get_app_meminfo_file_path(device):
     conf = config.load()

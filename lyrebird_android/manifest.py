@@ -1,6 +1,5 @@
 from lyrebird.plugins import manifest
 from . import apis
-from . import device_service
 
 manifest(
     id='android',
