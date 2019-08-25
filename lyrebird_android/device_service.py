@@ -62,6 +62,7 @@ class DeviceService:
         lyrebird.emit('device')
         self.publish_devices_package_info(self.devices, config.load().package_name)
 
+    @staticmethod
     def publish_devices_package_info(self, online_devices, package_name):
         devices_info_list = []
         for device_id, device_info in online_devices.items():
