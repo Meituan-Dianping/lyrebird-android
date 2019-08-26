@@ -63,7 +63,7 @@ class DeviceService:
         self.publish_devices_package_info(self.devices, config.load().package_name)
 
     @staticmethod
-    def publish_devices_package_info(self, online_devices, package_name):
+    def publish_devices_package_info(online_devices, package_name):
         devices_info_list = []
         for device_id, device_info in online_devices.items():
             device_detail = online_devices[device_id]
@@ -88,7 +88,7 @@ class DeviceService:
                 }
             devices_info_list.append(item)
 
-        lyrebird.publish('ios.device', devices_info_list, state=True)
+        lyrebird.publish('android.device', devices_info_list, state=True)
 
     def reset_screenshot_dir(self):
         if os.path.exists(android_helper.screenshot_dir):
