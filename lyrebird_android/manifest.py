@@ -5,8 +5,6 @@ manifest(
     id='android',
     name='Android',
     api=[
-        # Dump所有信息
-        ('/api/dump/<string:device_id>', apis.device_list, ['GET']),
         # 获取设备列表
         ('/api/devices', apis.device_list, ['GET']),
         # 设备详情
@@ -20,15 +18,11 @@ manifest(
         # 获取截图
         ('/api/src/screenshot/<string:device_id>', apis.get_screenshot_image, ['GET']),
         # 获取设备所有package
-        ('/api/src/screenshot/<string:device_id>', apis.get_all_package, ['GET']),
-        # 获取设备所有package
         ('/api/packages/<string:device_id>', apis.get_all_package, ['GET']),
         # 启动应用
         ('/api/start_app/<string:device_id>/<string:package_name>', apis.start_app, ['GET']),
         # 关闭应用
-        ('/api/stop_app/<string:device_id>/<string:package_name>', apis.stop_app, ['GET']),
-        # 获取资源信息
-        ('/api/dump', apis.dump_data, ['GET'])
+        ('/api/stop_app/<string:device_id>/<string:package_name>', apis.stop_app, ['GET'])
     ],
     background=[
         ('android_device_service', apis.device_service.run)

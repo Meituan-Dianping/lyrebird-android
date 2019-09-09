@@ -16,7 +16,7 @@
 <script>
 export default {
   created () {
-    this.$io.on('log', this.pushLog)
+    this.$io.on('android-log', this.pushLog)
   },
   computed: {
     logs () {

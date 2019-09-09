@@ -155,7 +155,7 @@ class Device:
                 line = line.decode(encoding='UTF-8', errors='ignore')
 
                 if not line:
-                    lyrebird.emit('log', self._log_cache)
+                    lyrebird.emit('android-log', self._log_cache)
                     log_file.close()
                     return
 
@@ -164,7 +164,7 @@ class Device:
                 self.anr_checker(line)
 
                 if len(self._log_cache) >= 10:
-                    lyrebird.emit('log', self._log_cache)
+                    lyrebird.emit('android-log', self._log_cache)
                     log_file.writelines(self._log_cache)
                     log_file.flush()
                     self._log_cache = []

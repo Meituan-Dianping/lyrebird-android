@@ -60,7 +60,6 @@ def take_screen_shot(device_id):
     device = device_service.devices.get(device_id)
     img_info = device.take_screen_shot()
     timestamp = img_info.get('timestamp')
-    print(f'/plugins/android/api/src/screenshot/{device_id}?time={timestamp}')
     if img_info.get('screen_shot_file'):
         return jsonify({'imgUrl': f'/plugins/android/api/src/screenshot/{device_id}?time={timestamp}'})
 
@@ -81,54 +80,6 @@ def get_screenshot_image(device_id):
         return send_from_directory(screenshot_dir, f'android_screenshot_{device_id}_{timestamp}.png')
     else:
         return None
-
-def make_dump_data(path):
-    device_data = {}
-    device_data['name'] = os.path.basename(path)
-    device_data['path'] = path
-    return device_data
-
-def dump_data():
-    """
-    获取所有设备相关信息，包括设备日志，崩溃日志，ANR日志，快照图片，APP_INFO等
-    :return: name, path
-    e.g
-    [
-        {
-            "name": "android_log_{imei}.log",
-            "path": "/Users/someone/.lyrebird/plugins/lyrebird_android/tmp/android_log_{imei}.log"
-        },
-        {
-            "name": "android_screenshot_{imei}.png",
-            "path": "/Users/someone/.lyrebird/plugins/lyrebird_android/tmp/android_screenshot_{imei}.png"
-        }
-    ]
-    """
-    res = []
-    devices = device_service.devices
-
-    for udid in devices:
-        device = devices[udid]
-        if device.log_filtered_file and os.path.getsize(device.log_filtered_file):
-            res.append(make_dump_data(device.log_filtered_file))
-        if device.crash_filtered_file and os.path.getsize(device.crash_filtered_file):
-            res.append(make_dump_data(device.crash_filtered_file))
-        if device.anr_filtered_file and os.path.getsize(device.anr_filtered_file):
-            res.append(make_dump_data(device.anr_filtered_file))
-        if len(get_app_info_file_path(device)):
-            res.append(make_dump_data(get_app_info_file_path(device)))
-        if len(get_app_meminfo_file_path(device)):
-            res.append(make_dump_data(get_app_meminfo_file_path(device)))
-        if device.anr_file:
-            res.append(make_dump_data(device.anr_file))
-        if len(device.crash_file_list):
-            for crash_path in device.crash_file_list:
-                res.append(make_dump_data(crash_path))
-        res.append(make_dump_data(get_device_cpuinfo_file_path(device, udid)))
-        res.append(make_dump_data(get_prop_file_path(device, udid)))
-        res.append(make_dump_data(device.take_screen_shot()))
-
-    return jsonify(res)
 
 def start_app(device_id, package_name):
     """
@@ -156,30 +107,6 @@ def stop_app(device_id, package_name):
         device = list(device_service.devices.values())[0]
     device.stop_app(package_name)
     return context.make_ok_response()
-
-def dump(device_id):
-    """
-    保存截图 设备信息 日志 app信息
-    :param device_id:
-    :return: 所有信息文件绝对路径 json list
-    """
-    device = device_service.devices.get(device_id)
-    if device:
-        device.take_screen_shot()
-    dump_list = [device.screen_shot_file, get_prop_file_path(device, device_id)]
-    if device.log_filtered_file and os.path.getsize(device.log_filtered_file):
-        dump_list.append(device.log_filtered_file)
-    if device.crash_filtered_file and os.path.getsize(device.crash_filtered_file):
-        dump_list.append(device.crash_filtered_file)
-    if device.anr_filtered_file and os.path.getsize(device.anr_filtered_file):
-        dump_list.append(device.anr_filtered_file)
-    if len(get_app_info_file_path(device)):
-        dump_list.append(get_app_info_file_path(device))
-    if len(get_app_meminfo_file_path(device)):
-        dump_list.append(get_app_meminfo_file_path(device))
-    if len(get_device_cpuinfo_file_path(device, device_id)):
-        dump_list.append(get_device_cpuinfo_file_path(device, device_id))
-    return jsonify(dump_list)
 
 def get_prop_file_path(device, device_id):
     device_prop_file_path = os.path.abspath(os.path.join(tmp_dir, f'android_info_{device_id}.txt'))
