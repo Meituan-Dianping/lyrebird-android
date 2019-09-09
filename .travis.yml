@@ -13,15 +13,26 @@ jobs:
       script: pytest
 
     - stage: release to pypi
-      if: type = push
+      if: type = push AND tag IS present
       language: python
-      catch: pip
+      catch:
+        - pip
+        - npm
       python:
         - "3.6"
+      node_js:
+        - "10"
+      install:
+        - cd frontend
+        - npm install
+        - npm run build
+        - cd ..
       script:
-        - echo "Skipping tests"
+        - echo "No script for pypi release"
       deploy:
         provider: pypi
+        skip_existing: true
+        skip-cleanup: true
         user: yumiguan
         password:
           secure: "Sbo4g90T3MCbY8Yh0o8eGd/c/QbhqA0CmrpG8iEuxrRnHBNHPxLr3TwNcJBgMw7Mdauv1iqQkwXZy9xKFbcYkl7fS2rauFYpCKpH2C4sjZAqRM4jXjmR00rZjAyEg2UdwY7h1tRR41NzGck7oQRVZW9cFKMjpiT1bS6BT9bXQ/REihqiRHlp4nGZVLZLFdGMkcP3vOyGYqpJUQn8QiD/cDk9WtX7nXo12s2AXBBjtdxgKzD65/I1ZEymydDU0B88K3ojnmWP3aJuqOEnJnqHadXBAKFk1urm5UynPM6IFDfYHw/RI2qLExksCX0lAMTZ092TDiGeNlLIjcyHr3y3vfzCy/rf7IfM20QPsACOa1b4UdXZaz5GNAUA7ymwft832CfH7msUfAgD6yh07tQ+9tUvjphmUqA9sQEcXVQVJEkda/vKRopwCPiWBdXuZjFfvVq+HCvVjq03KPV6MYTjks6Xas7hSwP0e0JYNpvHwp5i3g4SBhut5v9zjTdjJYs+ChafzclawAuXUfKzPObvA+7X3VjhylrvQshndW3BGLWC7f4uj0rI+zJJzS203rybXi5k1ffjcERPa1XWz3zG+IZRokof+95Ib6qTd/Bmc6aFeBWyWQ0JhQwPUt7n7ZNqcMPizvBSrB3QTRSJ36boqh592TjNg4mispAsMwJbddc="

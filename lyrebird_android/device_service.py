@@ -1,7 +1,9 @@
 import os
 import shutil
+import lyrebird
 from lyrebird import context, get_logger
 from . import android_helper
+from . import config
 import traceback
 
 
@@ -57,7 +59,36 @@ class DeviceService:
             self.devices[_device_id].stop_log()
             self.devices = devices
 
-        context.application.socket_io.emit('device', namespace='/android-plugin')
+        lyrebird.emit('device')
+        self.publish_devices_package_info(self.devices, config.load().package_name)
+
+    @staticmethod
+    def publish_devices_package_info(online_devices, package_name):
+        devices_info_list = []
+        for device_id, device_info in online_devices.items():
+            device_detail = online_devices[device_id]
+            if device_detail.device_info == None:
+                continue
+            item = {
+                'id': device_id,
+                'info': {
+                    'product': device_detail.product,
+                    'model': device_detail.model,
+                    'os': device_detail.get_release_version(),
+                    'ip': device_detail.get_device_ip(),
+                    'resolution': device_detail.get_device_resolution()
+                }
+            }
+            app = device_info.package_info(package_name)
+            if app.version_name:
+                item['app'] = {
+                    'packageName': package_name,
+                    'startActivity': app.launch_activity,
+                    'version': app.version_name
+                }
+            devices_info_list.append(item)
+
+        lyrebird.publish('android.device', devices_info_list, state=True)
 
     def reset_screenshot_dir(self):
         if os.path.exists(android_helper.screenshot_dir):

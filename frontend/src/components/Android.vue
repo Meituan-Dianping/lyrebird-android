@@ -1,0 +1,99 @@
+<template>
+  <Row>
+    <i-col span="6" class="android-split">
+      <device-list class="device-list"/>
+      <screen-shot v-show="focusDeviceId"/>
+    </i-col>
+
+    <i-col span="18" class="android-split">
+      <div v-if="focusDeviceId" style="height:100vh">
+        <Split v-model="split" mode="vertical">
+          <Row slot="top" class="android-split-pane" style="height:100%">
+            <i-col span="12" style="height:100%;border-right:1px solid #e8eaec;">
+              <device-info/>
+            </i-col>
+            <i-col span="12">
+              <package-info/>
+            </i-col>
+          </Row>
+          <div slot="bottom" class="android-split-pane">
+            <device-log/>
+          </div>
+        </Split>
+      </div>
+      <div v-else>
+        <p class="cell-empty">Please select an Android device</p>
+      </div>
+    </i-col>
+  </Row>
+</template>
+
+<script>
+import DeviceLog from '@/components/DeviceLog.vue'
+import DeviceList from '@/components/DeviceList.vue'
+import DeviceInfo from '@/components/DeviceInfo.vue'
+import ScreenShot from '@/components/ScreenShot.vue'
+import PackageInfo from '@/components/PackageInfo.vue'
+
+export default {
+  components: {
+    DeviceLog,
+    DeviceList,
+    DeviceInfo,
+    ScreenShot,
+    PackageInfo
+  },
+  data () {
+    return {
+      split: 0.3
+    }
+  },
+  created () {
+    this.$store.dispatch('loadDevices')
+    this.$io.on('device', this.getDevices)
+  },
+  computed: {
+    focusDeviceId () {
+      return this.$store.state.focusDeviceId
+    }
+  },
+  methods: {
+    getDevices () {
+      this.$store.dispatch('loadDevices')
+    }
+  }
+}
+</script>
+
+<style>
+.android-split {
+  height: 100vh;
+  border-left:1px solid #e8eaec;
+  border-right:1px solid #e8eaec;
+  word-break: break-all;
+}
+.android-split-pane{
+  overflow-y: auto;
+  height: 100%;
+}
+.cell-empty{
+  position: absolute;
+  top:40%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  text-align: center;
+}
+.device-list {
+  height: 30vh;
+}
+.android-img {
+  height: calc(70vh - 10px);
+}
+.info-header {
+  background-color: #f8f8f9;
+  padding: 5px;
+}
+.android-log {
+  padding: 10px;
+}
+</style>
