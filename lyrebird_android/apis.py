@@ -3,6 +3,7 @@ import socket
 import codecs
 import lyrebird
 from . import config
+from . import android_helper
 from lyrebird import context
 from .device_service import DeviceService
 from flask import request, jsonify, send_from_directory
@@ -173,6 +174,25 @@ def get_screenshots(message):
             }
         )
     lyrebird.publish('android.screenshot', screenshot_list)
+
+def execute_command():
+    if request.method == 'POST':
+        _command = request.json.get('command')
+        if not _command:
+            return context.make_fail_response('Empty command!')
+
+        _device_id = request.json.get('device_id', '')
+        device = device_service.devices.get(_device_id)
+        if not device:
+            return context.make_fail_response('Device not found!')
+
+        res = device.adb_command_executor(_command)
+        output = res.stdout.decode()
+        err_str = res.stderr.decode()
+        if err_str:
+            return context.make_fail_response(err_str)
+        else:
+            return context.make_ok_response(data=output)
 
 def get_ip():
     """

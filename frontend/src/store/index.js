@@ -1,10 +1,14 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import * as api from '@/api'
+import console from '@/store/console'
 
 Vue.use(Vuex)
 
 export default new Vuex.Store({
+  modules: {
+    console
+  },
   state: {
     devices: {},
     focusDeviceId: null,
@@ -15,8 +19,7 @@ export default new Vuex.Store({
     focusPackageName: null,
     packageInfo: {},
     packageDetail: null,
-    isStartingApp: false,
-    deviceLog: []
+    isStartingApp: false
   },
   mutations: {
     setDevices (state, devices) {
@@ -45,15 +48,6 @@ export default new Vuex.Store({
     },
     setIsStartingApp (state, isStartingApp) {
       state.isStartingApp = isStartingApp
-    },
-    addDeviceLog (state, logList) {
-      const displayLogLength = 200
-      if (state.deviceLog.length > displayLogLength) {
-        state.deviceLog.splice(0, state.deviceLog.length - displayLogLength)
-      }
-      for (const log of logList) {
-        state.deviceLog.push(log)
-      }
     }
   },
   actions: {
@@ -100,6 +94,16 @@ export default new Vuex.Store({
     },
     stopApp ({ state }) {
       api.stopApp(state.focusDeviceId, state.focusPackageName)
+    },
+    executeCommand ({ state, commit, dispatch }, { command }) {
+      api.executeCommand(state.focusDeviceId, command).then(response => {
+        if (response.data.code === 1000) {
+          commit('addTerminalLog', response.data.data)
+        } else if (response.data.code === 3000) {
+          commit('addTerminalLog', response.data.message)
+        }
+        dispatch('getHistoryCommand')
+      })
     }
   }
 })

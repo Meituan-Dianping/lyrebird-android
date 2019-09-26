@@ -22,7 +22,9 @@ manifest(
         # 启动应用
         ('/api/start_app/<string:device_id>/<string:package_name>', apis.start_app, ['GET']),
         # 关闭应用
-        ('/api/stop_app/<string:device_id>/<string:package_name>', apis.stop_app, ['GET'])
+        ('/api/stop_app/<string:device_id>/<string:package_name>', apis.stop_app, ['GET']),
+        # execute command
+        ('/api/command', apis.execute_command, ['POST']),
     ],
     background=[
         ('android_device_service', apis.device_service.run)

@@ -12,7 +12,7 @@
     </Row>
 
     <Row style="padding:10px;">
-      <i-col span="6">PackageName</i-col>
+      <i-col span="6"><b>PackageName</b></i-col>
       <i-col span="18">
         <i-select size="small" v-model="packageName" placeholder="package name" filterable>
           <i-option v-for="item in packages" :value="item.value" :key="item.value">{{ item.label }}</i-option>
@@ -20,13 +20,13 @@
       </i-col>
     </Row>
     <Row style="padding:10px">
-      <i-col span="6">StartActivity</i-col>
+      <i-col span="6"><b>StartActivity</b></i-col>
       <i-col span="18">
         <span>{{packageInfo.launchActivity}}</span>
       </i-col>
     </Row>
     <Row style="padding:10px">
-      <i-col span="6">AppVersion</i-col>
+      <i-col span="6"><b>AppVersion</b></i-col>
       <i-col span="18">
         <span>{{packageInfo.version}}</span>
       </i-col>
