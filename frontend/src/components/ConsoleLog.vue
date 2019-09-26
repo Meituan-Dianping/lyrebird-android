@@ -29,7 +29,7 @@
         <Button type="primary" long size="small" icon="md-add" @click.native="addCommandSplit"></Button>
       </div>
       <Divider dashed size="small" orientation="left">
-        <span style="color:#515a6e">After Format</span>
+        <span style="color:#515a6e">Preview</span>
       </Divider>
       <div class="command-after-format">
         <code style="word-break:break-all">
