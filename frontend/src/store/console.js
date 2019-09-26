@@ -1,9 +1,6 @@
 import * as api from '@/api'
 
 export default {
-  modules: {
-    console
-  },
   state: {
     deviceLog: [],
     terminalLog: [],

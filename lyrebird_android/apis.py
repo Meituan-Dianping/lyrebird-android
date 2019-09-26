@@ -3,7 +3,6 @@ import socket
 import codecs
 import lyrebird
 from . import config
-from . import android_helper
 from lyrebird import context
 from .device_service import DeviceService
 from flask import request, jsonify, send_from_directory
