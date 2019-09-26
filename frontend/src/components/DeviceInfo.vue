@@ -10,15 +10,15 @@
       </i-col>
     </Row>
     <Row style="padding:10px">
-      <i-col span="8">Device ID</i-col>
+      <i-col span="8"><b>Device ID</b></i-col>
       <i-col span="16">{{deviceInfo.device_id}}</i-col>
     </Row>
     <Row style="padding:10px">
-      <i-col span="8">Model</i-col>
+      <i-col span="8"><b>Model</b></i-col>
       <i-col span="16">{{deviceInfo.model}}</i-col>
     </Row>
     <Row style="padding:10px">
-      <i-col span="8">Android Version</i-col>
+      <i-col span="8"><b>Android Version</b></i-col>
       <i-col span="16">{{deviceInfo.releaseVersion}}</i-col>
     </Row>
 

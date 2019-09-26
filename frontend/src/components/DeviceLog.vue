@@ -1,15 +1,9 @@
 <template>
-  <div>
-    <Row class="info-header" type="flex" align="middle">
-      <i-col span="24">
-        <strong>Log</strong>
-      </i-col>
-    </Row>
-    <div ref="logContainer" class="android-log">
-      <p v-for="(log, index) in logs" :key="index">
-        {{ log }}
-      </p>
-    </div>
+  <div id="scroller" class="android-log">
+    <p v-for="(log, index) in logs" :key="index">
+      {{ log }}
+      <div id="anchor"></div>
+    </p>
   </div>
 </template>
 
@@ -20,18 +14,29 @@ export default {
   },
   computed: {
     logs () {
-      return this.$store.state.deviceLog
+      return this.$store.state.console.deviceLog
     }
   },
   methods: {
     pushLog (logList) {
-      this.$store.commit('addDeviceLog', logList)
-      setTimeout(this.scrollDownLog, 500)
-    },
-    scrollDownLog () {
-      const container = this.$refs.logContainer
-      this.$refs.logContainer.scrollTop = container.scrollHeight
+      this.$store.commit('addDeviceLogs', logList)
     }
   }
 }
 </script>
+
+<style>
+#scroller * {
+  overflow-anchor: none;
+}
+#anchor {
+  overflow-anchor: auto;
+  height: 1px;
+}
+.android-log {
+  padding: 10px;
+  height: calc(100% - 33px);
+  /* tabs-bar: 33px */
+  overflow-y: auto;
+}
+</style>

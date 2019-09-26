@@ -1,6 +1,5 @@
 import os
 import sys
-import json
 import time
 import codecs
 import lyrebird
@@ -385,6 +384,18 @@ class Device:
                 build_version = line[line.rfind('[') + 1:line.rfind(']')].strip()
                 device_info['releaseVersion'] = build_version
         return device_info
+
+    def adb_command_executor(self, command):
+        command = command.strip()
+        lyrebird.publish('android.command', command)
+
+        isAdbCommand = command.startswith('adb ')
+        if isAdbCommand:
+            command_adb, command_options = command.split(' ', 1)
+            command = f'{command_adb} -s {self.device_id} {command_options}'
+
+        p = subprocess.run(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        return p
 
 
 def devices():

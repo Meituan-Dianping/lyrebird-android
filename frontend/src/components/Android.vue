@@ -16,8 +16,15 @@
               <package-info/>
             </i-col>
           </Row>
-          <div slot="bottom" class="android-split-pane">
-            <device-log/>
+          <div slot="bottom" style="height:100%">
+            <Tabs value="console" size="small" :animated="false" style="height:100%">
+              <TabPane label="Console" name="console" style="height:100%">
+                <ConsoleLog/>
+              </TabPane>
+              <TabPane label="DeviceLog" name="log" style="height:100%">
+                <device-log/>
+              </TabPane>
+            </Tabs>
           </div>
         </Split>
       </div>
@@ -29,6 +36,7 @@
 </template>
 
 <script>
+import ConsoleLog from '@/components/ConsoleLog.vue'
 import DeviceLog from '@/components/DeviceLog.vue'
 import DeviceList from '@/components/DeviceList.vue'
 import DeviceInfo from '@/components/DeviceInfo.vue'
@@ -37,6 +45,7 @@ import PackageInfo from '@/components/PackageInfo.vue'
 
 export default {
   components: {
+    ConsoleLog,
     DeviceLog,
     DeviceList,
     DeviceInfo,
@@ -93,7 +102,13 @@ export default {
   background-color: #f8f8f9;
   padding: 5px;
 }
-.android-log {
-  padding: 10px;
+.ivu-tabs > .ivu-tabs-bar {
+  border-bottom: 0px;
+  background-color: #f8f8f9;
+  margin-bottom: 0px;
+  font-weight: bolder;
+}
+.ivu-tabs > .ivu-tabs-content {
+  height: 100%;
 }
 </style>

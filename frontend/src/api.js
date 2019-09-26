@@ -48,3 +48,19 @@ export const stopApp = (deviceId, packageName) => {
     url: API_PREFIX + '/stop_app/' + deviceId + '/' + packageName
   })
 }
+
+export const getHistoryCommand = () => {
+  let channel = 'android.command'
+  return axios({
+    url: '/api/event/' + channel,
+    method: 'GET'
+  })
+}
+
+export const executeCommand = (deviceId, command) => {
+  return axios({
+    url: API_PREFIX + '/command',
+    method: 'POST',
+    data: { command, 'device_id': deviceId }
+  })
+}
