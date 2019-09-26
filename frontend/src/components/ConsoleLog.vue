@@ -17,7 +17,7 @@
         placeholder="Use ↑ to view history command"
         @on-enter="onInputEnter"
         @on-keydown="onKeyPress"
-        style="width:calc(75vw - 71px);"
+        style="width:calc(75vw - 68px);"
       />
       <Button type="primary" size="small" @click="showModal">Format it</Button>
     </Poptip>
