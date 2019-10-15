@@ -320,7 +320,7 @@ class Device:
         return True if p.returncode == 0 else False
     
     def get_device_ip(self):
-        p = subprocess.run(f'{adb} -s {self.device_id} shell ip -b -4 address', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        p = subprocess.run(f'{adb} -s {self.device_id} shell ip -o -4 address', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         if p.returncode != 0:
             raise ADBError(p.stderr.decode())
         output = [line.strip() for line in p.stdout.decode().strip().split('\n')]
