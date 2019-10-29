@@ -7,12 +7,13 @@
       <Cell
         class="device-list-cell"
         v-for="(device, id) in devices"
-        :title="device.model ? device.model : 'Unknown'"
         :key="id"
         :name="id"
-        :extra="id"
         :selected="focusDeviceId === id"
       >
+        <span>{{device.model ? device.model : 'Unknown'}}</span>
+        <span style="padding-left:20px;font-size:12px;color:#bbbbbb">{{id}}</span>
+        <Icon type="md-image" slot="extra" size="18" @click.native="takeScreenShot"/>
       </Cell>
     </CellGroup>
   </div>
@@ -34,6 +35,9 @@ export default {
       this.$store.commit('setDeviceInfo', this.devices[deviceId])
       this.$store.dispatch('loadDefaultPackageName')
       this.$store.dispatch('loadPackages')
+      this.$store.dispatch('takeScreenShot')
+    },
+    takeScreenShot () {
       this.$store.dispatch('takeScreenShot')
     }
   }
