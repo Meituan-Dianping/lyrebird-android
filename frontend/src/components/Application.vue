@@ -20,7 +20,7 @@
       </p>
       <div style="text-align:center">
         <span style="font-size:14px">
-          Are you sure you want to delete <b>{{packageName}}</b> ?
+          Are you sure you want to uninstall <b>{{packageName}}</b> ?
         </span>
       </div>
       <div slot="footer">
