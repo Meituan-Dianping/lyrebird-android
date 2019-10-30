@@ -11,7 +11,7 @@
       <Button type="primary" size="small" style="margin:0px 5px" @click.native="stopApp" :disabled="!packageName">Stop app</Button>
       <Button type="primary" size="small" style="margin:0px 5px" @click.native="shownUninstallModal=true" :disabled="!packageName">Uninstall</Button>
       <Button type="primary" size="small" style="margin:0px 5px" @click.native="clearCache" :disabled="!packageName">Clear Cache</Button>
-      <Button type="primary" size="small" style="margin-left:5px" @click.native="showAppDetail = true" :disabled="!packageName">more detail</Button>
+      <Button type="primary" size="small" style="margin-left:5px" @click.native="showAppDetail = true" :disabled="!packageName">More Detail</Button>
     </Row>
     <Modal v-model="shownUninstallModal">
       <p slot="header" style="color:#f60;text-align:center">
