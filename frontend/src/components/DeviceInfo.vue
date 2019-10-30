@@ -1,12 +1,8 @@
 <template>
   <div>
     <Row class="info-header" type="flex" align="middle">
-      <i-col span="6">
+      <i-col span="24">
         <strong>Device information</strong>
-      </i-col>
-      <i-col span="18" align="right">
-        <Button type="primary" size="small" style="margin:0px 5px" @click.native="takeScreenShot" :disabled="isTakingScreen">Take screen shot</Button>
-        <Button type="primary" size="small" style="margin:0px 5px" @click.native="getDeviceDetail">more detail</Button>
       </i-col>
     </Row>
     <Row style="padding:10px">

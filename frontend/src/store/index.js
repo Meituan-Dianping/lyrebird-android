@@ -92,9 +92,6 @@ export default new Vuex.Store({
           commit('setIsStartingApp', false)
         })
     },
-    stopApp ({ state }) {
-      api.stopApp(state.focusDeviceId, state.focusPackageName)
-    },
     executeCommand ({ state, commit, dispatch }, { command }) {
       api.executeCommand(state.focusDeviceId, command).then(response => {
         if (response.data.code === 1000) {

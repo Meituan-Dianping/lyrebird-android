@@ -21,10 +21,10 @@ manifest(
         ('/api/packages/<string:device_id>', apis.get_all_package, ['GET']),
         # 启动应用
         ('/api/start_app/<string:device_id>/<string:package_name>', apis.start_app, ['GET']),
-        # 关闭应用
-        ('/api/stop_app/<string:device_id>/<string:package_name>', apis.stop_app, ['GET']),
         # execute command
         ('/api/command', apis.execute_command, ['POST']),
+        # actions of application
+        ('/api/device/<string:device_id>/app/<string:package_name>/<string:action>', apis.application_controller, ['PUT'])
     ],
     background=[
         ('android_device_service', apis.device_service.run)
