@@ -96,18 +96,6 @@ def start_app(device_id, package_name):
     device.start_app(app.launch_activity, get_ip(), port)
     return context.make_ok_response()
 
-def stop_app(device_id, package_name):
-    """
-
-    :param device_id:
-    :return:
-    """
-    device = device_service.devices.get(device_id)
-    if not device:
-        device = list(device_service.devices.values())[0]
-    device.stop_app(package_name)
-    return context.make_ok_response()
-
 def get_prop_file_path(device, device_id):
     device_prop_file_path = os.path.abspath(os.path.join(tmp_dir, f'android_info_{device_id}.txt'))
     device_prop = device.device_info
@@ -192,6 +180,47 @@ def execute_command():
             return context.make_fail_response(err_str)
         else:
             return context.make_ok_response(data=output)
+
+def application_controller(device_id, package_name, action):
+    if request.method == 'PUT':
+        device = device_service.devices.get(device_id)
+        if not device:
+            return context.make_fail_response(f'Device {device_id} not found!')
+        
+        app = device.package_info(package_name)
+        if not app:
+            return context.make_fail_response(f'Application {package_name} not found!')
+
+        if action == 'uninstall':
+            _command = f'adb uninstall {package_name}'
+            res = device.adb_command_executor(_command)
+            if res.returncode != 0:
+                return context.make_fail_response(res.stderr.decode())
+            # When adb uninstall <package> fail, the returncode is 0, while the output string contains `Failure`
+            elif 'Failure' in res.stdout.decode():
+                return context.make_fail_response(res.stdout.decode())
+            else:
+                return context.make_ok_response()
+        
+        elif action == 'clear':
+            _command = f'adb shell pm clear {package_name}'
+            res = device.adb_command_executor(_command)
+            if res.returncode != 0:
+                return context.make_fail_response(res.stderr.decode())
+            else:
+                return context.make_ok_response()
+        
+        elif action == 'stop':
+            _command = f'adb shell am force-stop {package_name}'
+            res = device.adb_command_executor(_command)
+            if res.returncode != 0:
+                return context.make_fail_response(res.stderr.decode())
+            else:
+                return context.make_ok_response()
+
+        else:
+            return context.make_fail_response('Unknown action: ', action)
+
 
 def get_ip():
     """

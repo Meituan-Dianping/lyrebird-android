@@ -43,12 +43,6 @@ export const startApp = (deviceId, packageName) => {
   })
 }
 
-export const stopApp = (deviceId, packageName) => {
-  return axios({
-    url: API_PREFIX + '/stop_app/' + deviceId + '/' + packageName
-  })
-}
-
 export const getHistoryCommand = () => {
   let channel = 'android.command'
   return axios({
@@ -62,5 +56,26 @@ export const executeCommand = (deviceId, command) => {
     url: API_PREFIX + '/command',
     method: 'POST',
     data: { command, 'device_id': deviceId }
+  })
+}
+
+export const uninstallApp = (deviceId, packageName) => {
+  return axios({
+    url: API_PREFIX + '/device/' + deviceId + '/app/' + packageName + '/uninstall',
+    method: 'PUT'
+  })
+}
+
+export const clearAppCache = (deviceId, packageName) => {
+  return axios({
+    url: API_PREFIX + '/device/' + deviceId + '/app/' + packageName + '/clear',
+    method: 'PUT'
+  })
+}
+
+export const stopApp = (deviceId, packageName) => {
+  return axios({
+    url: API_PREFIX + '/device/' + deviceId + '/app/' + packageName + '/stop',
+    method: 'PUT'
   })
 }

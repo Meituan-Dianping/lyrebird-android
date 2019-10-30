@@ -8,7 +8,10 @@
     <i-col span="18" class="android-split">
       <div v-if="focusDeviceId" style="height:100vh">
         <Split v-model="split" mode="vertical">
-          <Row slot="top" class="android-split-pane" style="height:100%">
+          <Row slot="top">
+            <application/>
+          </Row>
+          <Row slot="top" class="android-split-pane" style="height:calc(100% - 63px)">
             <i-col span="12" style="height:100%;border-right:1px solid #e8eaec;">
               <device-info/>
             </i-col>
@@ -42,6 +45,7 @@ import DeviceList from '@/components/DeviceList.vue'
 import DeviceInfo from '@/components/DeviceInfo.vue'
 import ScreenShot from '@/components/ScreenShot.vue'
 import PackageInfo from '@/components/PackageInfo.vue'
+import Application from '@/components/Application.vue'
 
 export default {
   components: {
@@ -50,6 +54,7 @@ export default {
     DeviceList,
     DeviceInfo,
     ScreenShot,
+    Application,
     PackageInfo
   },
   data () {
