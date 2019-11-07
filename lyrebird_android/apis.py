@@ -223,7 +223,7 @@ def application_controller(device_id, package_name, action):
                 return context.make_ok_response()
 
         else:
-            return context.make_fail_response('Unknown application action: ', action)
+            return context.make_fail_response(f'Unknown application action: {action}', )
 
 def device_controller(device_id, action):
     if request.method == 'PUT':
@@ -240,7 +240,7 @@ def device_controller(device_id, action):
                 return context.make_ok_response()
 
         else:
-            return context.make_fail_response('Unknown device action: ', action)
+            return context.make_fail_response(f'Unknown device action: {action}')
 
 def install_application(device, path):
     _command = f'adb install -r {path}'
@@ -272,7 +272,7 @@ def template(action):
             return context.make_ok_response(install_options=install_options)
 
     else:
-        return context.make_fail_response('Unknown get template action: ', action)
+        return context.make_fail_response(f'Unknown get template action: {action}')
 
 def search_app():
     if request.method == 'POST':
