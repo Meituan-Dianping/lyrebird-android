@@ -19,7 +19,13 @@ export default new Vuex.Store({
     focusPackageName: null,
     packageInfo: {},
     packageDetail: null,
-    isStartingApp: false
+    isStartingApp: false,
+    installOptions: [],
+    selectedInstallIndex: null,
+    appList: [],
+    isLoadingAppList: false,
+    isDownloadingApp: false,
+    isInstallingApp: false
   },
   mutations: {
     setDevices (state, devices) {
@@ -48,6 +54,24 @@ export default new Vuex.Store({
     },
     setIsStartingApp (state, isStartingApp) {
       state.isStartingApp = isStartingApp
+    },
+    setInstallOptions (state, installOptions) {
+      state.installOptions = installOptions
+    },
+    setSelectedInstallIndex (state, selectedInstallIndex) {
+      state.selectedInstallIndex = selectedInstallIndex
+    },
+    setAppList (state, appList) {
+      state.appList = appList
+    },
+    setIsLoadingAppList (state, isLoadingAppList) {
+      state.isLoadingAppList = isLoadingAppList
+    },
+    setIsDownloadingApp (state, isDownloadingApp) {
+      state.isDownloadingApp = isDownloadingApp
+    },
+    setIsInstallingApp (state, isInstallingApp) {
+      state.isInstallingApp = isInstallingApp
     }
   },
   actions: {
@@ -101,6 +125,42 @@ export default new Vuex.Store({
         }
         dispatch('getHistoryCommand')
       })
+    },
+    getInstallOptions ({ commit }) {
+      api.getInstallOptions()
+        .then(response => {
+          if (response.data.code === 1000) {
+            commit('setInstallOptions', response.data.install_options)
+            if (response.data.install_options.length) {
+              commit('setSelectedInstallIndex', 0)
+            }
+          } else if (response.data.code === 3000) {
+            console.log('get install source options error:', response)
+          }
+        })
+    },
+    loadAppList ({ state, commit }, searchStr) {
+      commit('setIsLoadingAppList', true)
+      api.getAppList(state.installOptions[state.selectedInstallIndex], searchStr)
+        .then(response => {
+          commit('setAppList', response.data.applist)
+          commit('setIsLoadingAppList', false)
+        })
+    },
+    downloadAndInstallApp ({ commit, dispatch }, url) {
+      commit('setIsDownloadingApp', true)
+      api.downloadApk(url)
+        .then(response => {
+          commit('setIsDownloadingApp', false)
+          dispatch('installApp', response.data.path)
+        })
+    },
+    installApp ({ state, commit }, path) {
+      commit('setIsInstallingApp', true)
+      api.installApp(state.focusDeviceId, path)
+        .then(response => {
+          commit('setIsInstallingApp', false)
+        })
     }
   }
 })

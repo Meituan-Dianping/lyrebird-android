@@ -11,9 +11,9 @@
           <Row slot="top">
             <application/>
           </Row>
-          <Row slot="top" class="android-split-pane" style="height:calc(100% - 63px)">
+          <Row slot="top" style="height:calc(100% - 63px)">
             <i-col span="12" style="height:100%;border-right:1px solid #e8eaec;">
-              <device-info/>
+              <package-install/>
             </i-col>
             <i-col span="12">
               <package-info/>
@@ -42,9 +42,9 @@
 import ConsoleLog from '@/components/ConsoleLog.vue'
 import DeviceLog from '@/components/DeviceLog.vue'
 import DeviceList from '@/components/DeviceList.vue'
-import DeviceInfo from '@/components/DeviceInfo.vue'
 import ScreenShot from '@/components/ScreenShot.vue'
 import PackageInfo from '@/components/PackageInfo.vue'
+import PackageInstall from '@/components/PackageInstall.vue'
 import Application from '@/components/Application.vue'
 
 export default {
@@ -52,9 +52,9 @@ export default {
     ConsoleLog,
     DeviceLog,
     DeviceList,
-    DeviceInfo,
     ScreenShot,
     Application,
+    PackageInstall,
     PackageInfo
   },
   data () {
