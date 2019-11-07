@@ -5,7 +5,7 @@ import requests
 import lyrebird
 from pathlib import Path
 from . import config
-from . import source_loader
+from . import template_loader
 from lyrebird import context
 from .device_service import DeviceService
 from urllib.parse import urlparse
@@ -268,7 +268,7 @@ def _download_big_file(path, url):
 def template(action):
     if action == 'install':
         if request.method == 'GET':
-            install_options = source_loader.install_options()
+            install_options = template_loader.install_options()
             return context.make_ok_response(install_options=install_options)
 
     else:
@@ -280,7 +280,7 @@ def search_app():
         template = request.json.get('template')
         template_path = template.get('path')
 
-        template = source_loader.get_template(template_path)
+        template = template_loader.get_template(template_path)
         origin_app_list = template.get_apps()
 
         if not search_str:

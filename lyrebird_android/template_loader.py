@@ -28,17 +28,17 @@ def install_options():
     install_workspace = workspace/'install'
     if not Path(install_workspace).exists():
         install_workspace.mkdir(parents=True, exist_ok=True)
-    source_list = []
+    install_options = []
     for template_file in install_workspace.iterdir():
         if not template_file.name.endswith('.py'):
             continue
         try:
             template = imp.load_source(template_file.stem, str(template_file))
-            source_list.append({'name': template.name, 'path': str(template_file), 'key': template.key})
+            install_options.append({'name': template.name, 'path': str(template_file), 'key': template.key})
             del template
         except Exception:
             logger.error(f'Load bug template failed:\nBad template: {template_file}\n{traceback.format_exc()}')
-    return source_list
+    return install_options
 
 def get_template(file_path):
     if file_path:
