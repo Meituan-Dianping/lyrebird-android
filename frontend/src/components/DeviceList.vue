@@ -13,7 +13,7 @@
       >
         <span>{{device.model ? device.model : 'Unknown'}}</span>
         <span style="padding-left:20px;font-size:12px;color:#bbbbbb">{{id}}</span>
-        <Icon type="md-image" slot="extra" size="18" @click.native="takeScreenShot"/>
+        <Icon type="md-camera" slot="extra" size="18" @click.native="takeScreenShot"/>
       </Cell>
     </CellGroup>
   </div>

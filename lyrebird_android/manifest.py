@@ -24,7 +24,15 @@ manifest(
         # execute command
         ('/api/command', apis.execute_command, ['POST']),
         # actions of application
-        ('/api/device/<string:device_id>/app/<string:package_name>/<string:action>', apis.application_controller, ['PUT'])
+        ('/api/device/<string:device_id>/app/<string:package_name>/<string:action>', apis.application_controller, ['PUT']),
+        # actions of device
+        ('/api/device/<string:device_id>/<string:action>', apis.device_controller, ['PUT']),
+        # load template
+        ('/api/template/<string:action>', apis.template, ['GET', 'PUT']),
+        # download apk
+        ('/api/src/apk', apis.download_application, ['PUT']),
+        # search app
+        ('/api/search/app', apis.search_app, ['POST'])
     ],
     background=[
         ('android_device_service', apis.device_service.run)

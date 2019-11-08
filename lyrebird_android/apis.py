@@ -1,10 +1,14 @@
 import os
 import socket
 import codecs
+import requests
 import lyrebird
+from pathlib import Path
 from . import config
+from . import template_loader
 from lyrebird import context
 from .device_service import DeviceService
+from urllib.parse import urlparse
 from flask import request, jsonify, send_from_directory
 
 
@@ -201,7 +205,7 @@ def application_controller(device_id, package_name, action):
                 return context.make_fail_response(res.stdout.decode())
             else:
                 return context.make_ok_response()
-        
+
         elif action == 'clear':
             _command = f'adb shell pm clear {package_name}'
             res = device.adb_command_executor(_command)
@@ -209,7 +213,7 @@ def application_controller(device_id, package_name, action):
                 return context.make_fail_response(res.stderr.decode())
             else:
                 return context.make_ok_response()
-        
+
         elif action == 'stop':
             _command = f'adb shell am force-stop {package_name}'
             res = device.adb_command_executor(_command)
@@ -219,8 +223,71 @@ def application_controller(device_id, package_name, action):
                 return context.make_ok_response()
 
         else:
-            return context.make_fail_response('Unknown action: ', action)
+            return context.make_fail_response(f'Unknown application action: {action}', )
 
+def device_controller(device_id, action):
+    if request.method == 'PUT':
+        device = device_service.devices.get(device_id)
+        if not device:
+            return context.make_fail_response(f'Device {device_id} not found!')
+
+        if action == 'install':
+            apk_path = request.json.get('apkPath')
+            res = install_application(device, apk_path)
+            if res.returncode != 0:
+                return context.make_fail_response(res.stderr.decode())
+            else:
+                return context.make_ok_response()
+
+        else:
+            return context.make_fail_response(f'Unknown device action: {action}')
+
+def install_application(device, path):
+    _command = f'adb install -r {path}'
+    res = device.adb_command_executor(_command)
+    return res
+
+def download_application():
+    app_url = request.json.get('appUrl')
+    app_url_obj = urlparse(app_url)
+    app_name = app_url_obj.path.split('/')[-1]
+    app_file = Path(tmp_dir)/app_name
+
+    if not app_file.name.endswith('.apk'):
+        return context.make_fail_response(f'Unexpected type: {app_file.stem}, url: {app_url}')
+    _download_big_file(app_file, app_url)
+    return context.make_ok_response(path=str(app_file))
+
+def _download_big_file(path, url):
+    response = requests.get(url, stream=True)
+    with codecs.open(path, 'wb') as f:
+        for chunk in response.iter_content(chunk_size=512):
+            if chunk:
+                f.write(chunk)
+
+def template(action):
+    if action == 'install':
+        if request.method == 'GET':
+            install_options = template_loader.install_options()
+            return context.make_ok_response(install_options=install_options)
+
+    else:
+        return context.make_fail_response(f'Unknown get template action: {action}')
+
+def search_app():
+    if request.method == 'POST':
+        search_str = request.json.get('searchStr')
+        template = request.json.get('template')
+        template_path = template.get('path')
+
+        template = template_loader.get_template(template_path)
+        origin_app_list = template.get_apps()
+
+        if not search_str:
+            return context.make_ok_response(applist=origin_app_list)
+
+        matched_apps = [app for app in origin_app_list if search_str in app['name']]
+        return context.make_ok_response(applist=matched_apps)
 
 def get_ip():
     """

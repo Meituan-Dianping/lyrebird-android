@@ -79,3 +79,33 @@ export const stopApp = (deviceId, packageName) => {
     method: 'PUT'
   })
 }
+
+export const installApp = (deviceId, apkPath) => {
+  return axios({
+    url: API_PREFIX + '/device/' + deviceId + '/install',
+    method: 'PUT',
+    data: { apkPath }
+  })
+}
+
+export const getInstallOptions = () => {
+  return axios({
+    url: API_PREFIX + '/template/install'
+  })
+}
+
+export const downloadApk = (appUrl) => {
+  return axios({
+    url: API_PREFIX + '/src/apk',
+    method: 'PUT',
+    data: { appUrl }
+  })
+}
+
+export const getAppList = (template, searchStr) => {
+  return axios({
+    url: API_PREFIX + '/search/app',
+    method: 'POST',
+    data: { template, searchStr }
+  })
+}
