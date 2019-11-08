@@ -1,6 +1,5 @@
 import imp
 import traceback
-import typing
 from pathlib import Path
 
 from lyrebird import application
@@ -15,7 +14,7 @@ def get_workspace():
 
     if android_workspace and Path(android_workspace).exists():
         return Path(android_workspace)
-    
+
     ROOT = application._cm.ROOT
     metadata_dir = ROOT/'downloads'/'lyrebird_android'
     metadata_dir.mkdir(parents=True, exist_ok=True)
