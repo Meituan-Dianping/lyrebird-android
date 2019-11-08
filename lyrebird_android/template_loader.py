@@ -33,11 +33,18 @@ def install_options():
             continue
         try:
             template = imp.load_source(template_file.stem, str(template_file))
+            template_check(template)
             install_options.append({'name': template.name, 'path': str(template_file), 'key': template.key})
             del template
         except Exception:
             logger.error(f'Load bug template failed:\nBad template: {template_file}\n{traceback.format_exc()}')
     return install_options
+
+def template_check(template):
+    assert hasattr(template, 'key'), "Android install template should has key attr"
+    assert hasattr(template, 'name'), "Android install template should has name attr"
+    assert hasattr(template, 'get_apps'), "Android install template should has get_apps attr"
+    assert callable(template.get_apps), "Android install template should has get_apps function"
 
 def get_template(file_path):
     if file_path:
