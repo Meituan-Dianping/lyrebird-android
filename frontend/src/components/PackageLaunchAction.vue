@@ -1,7 +1,7 @@
 <template>
   <p style="word-break:break-all;">
     <span class="start-item-info-btn">
-      <Tooltip :content="infoDesc" :delay="500" placement="bottom-start" theme="light">
+      <Tooltip :content="infoDesc?infoDesc:'No description'" :delay="500" placement="bottom-start" theme="light">
         <Icon type="ios-help-circle-outline" size="14"/>
       </Tooltip>
     </span>
