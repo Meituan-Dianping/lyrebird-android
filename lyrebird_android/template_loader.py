@@ -89,7 +89,7 @@ def _check_install_template(template):
         raise AndroidTemplateIllegal('Android install template should have get_apps function')
 
 def _check_launch_content(content):
-    if not 'name' in content:
+    if 'name' not in content:
         raise AndroidTemplateIllegal('Android launch app config should have name')
 
 def get_template(path):
