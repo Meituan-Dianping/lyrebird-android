@@ -1,14 +1,13 @@
 <template>
   <div style="height:100%">
     <Row class="info-header" type="flex" align="middle">
-      <strong>APP Shortcuts</strong>
+      <strong>App Shortcuts</strong>
     </Row>
     <Row type="flex" align="middle" style="padding: 5px;">
-      <i-select size="small" v-model="packageName" placeholder="package name" filterable style="width:calc(100% - 400px);">
+      <i-select size="small" v-model="packageName" placeholder="package name" filterable style="width:calc(100% - 325px);">
         <i-option v-for="item in packages" :value="item.value" :key="item.value">{{ item.label }}</i-option>
       </i-select>
-      <Button type="primary" size="small" style="margin:0px 5px" @click.native="startApp" :disabled="isStartingApp || !packageName">Start app</Button>
-      <Button type="primary" size="small" style="margin:0px 5px" @click.native="stopApp" :disabled="!packageName">Stop app</Button>
+      <Button type="primary" size="small" style="margin:0px 5px" @click.native="stopApp" :disabled="!packageName">Stop App</Button>
       <Button type="primary" size="small" style="margin:0px 5px" @click.native="shownUninstallModal=true" :disabled="!packageName">Uninstall</Button>
       <Button type="primary" size="small" style="margin:0px 5px" @click.native="clearCache" :disabled="!packageName">Clear Cache</Button>
       <Button type="primary" size="small" style="margin-left:5px" @click.native="showAppDetail = true" :disabled="!packageName">More Detail</Button>
@@ -61,33 +60,27 @@ export default {
     },
     focusDeviceId () {
       return this.$store.state.focusDeviceId
-    },
-    isStartingApp () {
-      return this.$store.state.isStartingApp
     }
   },
   methods: {
-    startApp () {
-      this.$store.dispatch('startApp')
-    },
     stopApp () {
       api.stopApp(this.focusDeviceId, this.packageName)
-      .then(response => {
-        console.log('Stop APP ' + this.packageName + ' result: ' + response.data.message)
-      })
+        .then(response => {
+          console.log('Stop App ' + this.packageName + ' result: ' + response.data.message)
+        })
     },
     uninstall () {
       api.uninstallApp(this.focusDeviceId, this.packageName)
-      .then(response => {
-        console.log('Uninstall APP ' + this.packageName + ' result: ' + response.data.message)
-      })
+        .then(response => {
+          console.log('Uninstall APP ' + this.packageName + ' result: ' + response.data.message)
+        })
       this.shownUninstallModal = false
     },
     clearCache () {
       api.clearAppCache(this.focusDeviceId, this.packageName)
-      .then(response => {
-        console.log('Clear APP ' + this.packageName + ' cache result: ' + response.data.message)
-      })
+        .then(response => {
+          console.log('Clear APP ' + this.packageName + ' cache result: ' + response.data.message)
+        })
     }
   }
 }

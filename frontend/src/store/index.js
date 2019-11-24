@@ -1,12 +1,14 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import * as api from '@/api'
+import start from '@/store/start'
 import console from '@/store/console'
 
 Vue.use(Vuex)
 
 export default new Vuex.Store({
   modules: {
+    start,
     console
   },
   state: {
@@ -19,7 +21,6 @@ export default new Vuex.Store({
     focusPackageName: null,
     packageInfo: {},
     packageDetail: null,
-    isStartingApp: false,
     installOptions: [],
     selectedInstallIndex: null,
     appList: [],
@@ -51,9 +52,6 @@ export default new Vuex.Store({
     },
     setPackageInfo (state, packageInfo) {
       state.packageInfo = packageInfo
-    },
-    setIsStartingApp (state, isStartingApp) {
-      state.isStartingApp = isStartingApp
     },
     setInstallOptions (state, installOptions) {
       state.installOptions = installOptions
@@ -108,13 +106,6 @@ export default new Vuex.Store({
       api.getAppInfo(state.focusDeviceId, state.focusPackageName).then(response => {
         commit('setPackageInfo', response.data)
       })
-    },
-    startApp ({ state, commit }) {
-      commit('setIsStartingApp', true)
-      api.startApp(state.focusDeviceId, state.focusPackageName)
-        .then(response => {
-          commit('setIsStartingApp', false)
-        })
     },
     executeCommand ({ state, commit, dispatch }, { command }) {
       api.executeCommand(state.focusDeviceId, command).then(response => {

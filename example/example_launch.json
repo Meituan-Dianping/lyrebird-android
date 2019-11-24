@@ -1,0 +1,23 @@
+{
+    "name": "launch_config",
+    "actions": [
+        {
+            "desc": "The ip of mock serve",
+            "group": "mock",
+            "key": "mock",
+            "value": "http://{{ip}}:{{port}}/mock/"
+        },
+        {
+            "desc": "latitude",
+            "group": "location",
+            "key": "lat",
+            "value": "39.9046669"
+        },
+        {
+            "desc": "longitude",
+            "group": "location",
+            "key": "lng",
+            "value": "116.4081955"
+        }
+    ]
+}

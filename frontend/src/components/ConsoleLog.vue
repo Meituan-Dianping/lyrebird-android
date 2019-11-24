@@ -41,7 +41,7 @@
 </template>
 
 <script>
-import InputItem from '@/components/InputItem.vue'
+import InputItem from '@/components/ConsoleLogModalItem.vue'
 
 export default {
   components: {
@@ -104,10 +104,11 @@ export default {
       }
     },
     onKeyPress (payload) {
+      var pointer
       if (payload.key === 'ArrowUp') {
-        var pointer = this.$store.state.console.historyCommandIndex + 1
+        pointer = this.$store.state.console.historyCommandIndex + 1
       } else if (payload.key === 'ArrowDown') {
-        var pointer = this.$store.state.console.historyCommandIndex - 1
+        pointer = this.$store.state.console.historyCommandIndex - 1
       } else {
         return
       }

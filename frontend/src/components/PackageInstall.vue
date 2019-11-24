@@ -2,7 +2,7 @@
   <div style="height:100%">
     <Row class="info-header" type="flex" align="middle">
       <i-col span="24">
-        <strong>Installation</strong>
+        <strong>Install App</strong>
       </i-col>
     </Row>
     <Row style="padding:5px;">
@@ -33,19 +33,19 @@
       <Icon type="ios-loading" size=18 class="spin-icon-load"></Icon>
       <div>{{spinLoadingText}}</div>
     </Spin>
-    <div v-else-if="appList.length" style="height:calc(100% - 34px);overflow-y:auto;">
-      <Row type="flex" align="middle" v-for="item in appList" :key="item.id" style="border-bottom: 1px dashed #ccc;padding: 5px 2px;">
+    <div v-else-if="appList.length" style="height:calc(100% - 62px);overflow-y:auto;">
+      <Row type="flex" align="middle" v-for="item in appList" :key="item.id" style="border-bottom: 1px dashed #ccc;padding:5px;">
         <Tooltip content="Install" placement="bottom-start" :delay="500">
           <Icon
             type="md-archive"
             color="#5cadff"
             size="16"
-            style="cursor: pointer;padding:0px 5px;"
+            style="cursor: pointer;padding-right:5px;"
             @click.stop="installApp(item.url)"
           />
         </Tooltip>
-        <span>{{item.time}}</span>
-        <span style="padding:0px 5px;word-break:break-all;">{{item.name}}</span>
+        <span>{{item.time.substring(5)}}</span>
+        <span style="padding:0px 5px;word-break:break-all;font-weight:bold;">{{item.name}}</span>
       </Row>
     </div>
     <div v-else class="cell-empty">
