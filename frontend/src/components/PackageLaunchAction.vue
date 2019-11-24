@@ -23,16 +23,11 @@
         <span slot="close">false</span>
       </i-switch>
       <Input
-        v-else-if="infoValueType==='object'"
+        v-else
         size="small"
         type="textarea"
         v-model="infoValue"
-        :autosize="{minRows: 2,maxRows: 20}"
-      />
-      <Input
-        v-else
-        size="small"
-        v-model="infoValue"
+        :autosize="{minRows: 1,maxRows: 20}"
       />
     </span>
     <span class="start-item-delete-btn">
