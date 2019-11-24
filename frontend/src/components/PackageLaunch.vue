@@ -18,8 +18,24 @@
       >
         <Option v-for="(item, index) in startConfigOptions" :value="index" :key="index">{{ item.name }}</Option>
       </Select>
-      <Button type="primary" size="small" style="margin-left:5px" @click.native="saveLaunchActions" :disabled="selectedStartConfigIndex === null">Save</Button>
-      <Button type="primary" size="small" style="margin-left:5px" @click.native="launchApp" :disabled="isStartingApp || !packageName">Start App</Button>
+      <Button
+        type="primary"
+        size="small"
+        @click.native="saveLaunchActions"
+        :disabled="selectedStartConfigIndex === null"
+        style="margin-left:5px"
+      >
+        Save
+      </Button>
+      <Button
+        type="primary"
+        size="small"
+        @click.native="launchApp"
+        :disabled="isStartingApp || !packageName"
+        style="margin-left:5px"
+      >
+        Start App
+      </Button>
     </Row>
     <Spin fix v-if="isStartingApp">
       <Icon type="ios-loading" size=18 class="spin-icon-load"></Icon>
