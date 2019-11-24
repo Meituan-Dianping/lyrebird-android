@@ -18,14 +18,14 @@
       >
         <Option v-for="(item, index) in startConfigOptions" :value="index" :key="index">{{ item.name }}</Option>
       </Select>
-      <Button type="primary" size="small" style="margin-left:5px" @click.native="saveLaunchActions" :disabled="launchActions.length===0">Save</Button>
+      <Button type="primary" size="small" style="margin-left:5px" @click.native="saveLaunchActions" :disabled="selectedStartConfigIndex === null">Save</Button>
       <Button type="primary" size="small" style="margin-left:5px" @click.native="launchApp" :disabled="isStartingApp || !packageName">Start App</Button>
     </Row>
     <Spin fix v-if="isStartingApp">
       <Icon type="ios-loading" size=18 class="spin-icon-load"></Icon>
       <div>Starting APP</div>
     </Spin>
-    <div v-else-if="launchActions" style="height:calc(100% - 62px);overflow-y:auto;">
+    <div v-else style="height:calc(100% - 62px);overflow-y:auto;">
       <div v-for="(info, index) in launchActions" :key="index" style="padding:5px">
         <Divider v-show="isShownDivider(index)" dashed size="small" orientation="center">
           <span style="color:#515a6e">{{info.group?info.group:'None'}}</span>
@@ -37,9 +37,6 @@
           <Icon type="md-add" size=14 @click.native="addLaunchActionsItem" />
         </Tooltip>
       </Row>
-    </div>
-    <div v-else class="cell-empty">
-      <p style="text-align:center;">No data</p>
     </div>
   </div>
 </template>
@@ -84,7 +81,11 @@ export default {
         return this.$store.state.start.selectedStartConfigIndex
       },
       set (val) {
-        this.$store.commit('setSelectedStartConfigIndex', val)
+        if (val === undefined) {
+          this.$store.commit('setSelectedStartConfigIndex', null)
+        } else {
+          this.$store.commit('setSelectedStartConfigIndex', val)
+        }
       }
     },
     launchActions () {
