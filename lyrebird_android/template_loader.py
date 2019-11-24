@@ -58,8 +58,6 @@ def start_options():
 def get_config(config_name):
     plugin_conf = application.config.get('plugin.android', {})
     config = plugin_conf.get(config_name, '')
-    if not config:
-        raise AndroidTemplateNotFound(f'Android config {config_name} not found!')
     return config
 
 def _init_install_workspace():
