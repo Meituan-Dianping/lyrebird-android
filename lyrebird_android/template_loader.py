@@ -116,6 +116,6 @@ def save_content(content, path):
         raise AndroidTemplateNotFound(f'Android content {str(path)} not found!')
     try:
         with codecs.open(str(path), 'w', 'utf-8') as f:
-            json.dump(content, f, ensure_ascii=False)
+            json.dump(content, f, ensure_ascii=False, indent=4)
     except Exception:
         raise AndroidTemplateIllegal(f'Save content failed:\nBad content: {path}\n{traceback.format_exc()}')
