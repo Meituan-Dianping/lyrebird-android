@@ -272,7 +272,7 @@ def device_controller(device_id, action):
         if not device:
             return context.make_fail_response(f'Device {device_id} not found!')
         if not controller_actions.get(action):
-            return context.make_fail_response(f'Unknown application action: {action}')
+            return context.make_fail_response(f'Unknown device action: {action}')
 
         action_func = controller_actions.get(action)
         res = action_func(device, request)
