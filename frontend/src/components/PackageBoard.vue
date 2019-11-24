@@ -72,14 +72,14 @@ export default {
     uninstall () {
       api.uninstallApp(this.focusDeviceId, this.packageName)
         .then(response => {
-          console.log('Uninstall APP ' + this.packageName + ' result: ' + response.data.message)
+          console.log('Uninstall App ' + this.packageName + ' result: ' + response.data.message)
         })
       this.shownUninstallModal = false
     },
     clearCache () {
       api.clearAppCache(this.focusDeviceId, this.packageName)
         .then(response => {
-          console.log('Clear APP ' + this.packageName + ' cache result: ' + response.data.message)
+          console.log('Clear App ' + this.packageName + ' cache result: ' + response.data.message)
         })
     }
   }
