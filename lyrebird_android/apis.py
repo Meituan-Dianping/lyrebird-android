@@ -160,11 +160,8 @@ def _start_template(request):
         template_path = template.get('path')
         content = template_loader.get_content(template_path)
 
-        new_actions = request.json.get('actions')
-        old_actions = content['actions']
-        if new_actions == old_actions:
-            return context.make_fail_response(f'Save launch actions error: nothing changed!')
-        content['actions'] = new_actions
+        actions = request.json.get('actions')
+        content['actions'] = actions
         template_loader.save_content(content, template_path)
         return context.make_ok_response()
 

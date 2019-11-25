@@ -15,7 +15,7 @@
     </span>
     <span class="start-item-value">
       <i-switch
-        v-if="infoValueType==='bool'"
+        v-if="infoValueType==='boolean'"
         size="large"
         v-model="infoValue"
       >
@@ -50,7 +50,7 @@ export default {
           label: 'Text'
         },
         {
-          value: 'bool',
+          value: 'boolean',
           label: 'Boolean'
         },
         {
@@ -79,7 +79,7 @@ export default {
       get () {
         if (this.infoValueType === 'object') {
           return JSON.stringify(this.$store.state.start.launchActions[this.index].value, null, 4)
-        } else if (this.infoValueType === 'bool') {
+        } else if (this.infoValueType === 'boolean') {
           return Boolean(this.$store.state.start.launchActions[this.index].value)
         } else {
           if (typeof this.$store.state.start.launchActions[this.index].value === 'object') {
@@ -100,7 +100,7 @@ export default {
     },
     initValueType () {
       if (typeof this.$store.state.start.launchActions[this.index].value === 'boolean') {
-        this.infoValueType = 'bool'
+        this.infoValueType = 'boolean'
       } else if (typeof this.$store.state.start.launchActions[this.index].value === 'object') {
         this.infoValueType = 'object'
       } else {

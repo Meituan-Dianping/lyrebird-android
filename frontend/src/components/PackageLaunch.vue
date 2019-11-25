@@ -64,24 +64,6 @@ export default {
   components: {
     LaunchAction
   },
-  data () {
-    return {
-      valueTypeList: [
-        {
-          value: 'text',
-          label: 'Text'
-        },
-        {
-          value: 'bool',
-          label: 'Boolean'
-        },
-        {
-          value: 'json',
-          label: 'JSON'
-        }
-      ]
-    }
-  },
   created () {
     this.$store.dispatch('loadStartConfigOptions')
   },

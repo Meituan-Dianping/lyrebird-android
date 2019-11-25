@@ -104,7 +104,7 @@ export default {
       }
     },
     onKeyPress (payload) {
-      var pointer
+      let pointer
       if (payload.key === 'ArrowUp') {
         pointer = this.$store.state.console.historyCommandIndex + 1
       } else if (payload.key === 'ArrowDown') {
