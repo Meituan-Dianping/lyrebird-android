@@ -227,7 +227,7 @@ class Device:
         p = subprocess.run(f'{adb} -s {self.device_id} pull "/data/anr/traces.txt" {anr_file_name}',
                             shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         if p.returncode != 0:
-            logger.error('Catch ANR log error!\n' + p.stderr)
+            logger.error('Catch ANR log error!\n' + p.stderr.decode())
             return
 
         # check whether pid of the anr_package exists or not
@@ -311,14 +311,6 @@ class Device:
             })
         return {}
 
-    def start_app(self, start_activity, ip, port):
-        p = subprocess.run(f'{adb} -s {self.device_id} shell am start -n {start_activity} --es mock http://{ip}:{port}/mock/ --es closeComet true', shell=True)
-        return True if p.returncode == 0 else False
-
-    def stop_app(self, package_name):
-        p = subprocess.run(f'{adb} -s {self.device_id} shell am force-stop {package_name}', shell=True)
-        return True if p.returncode == 0 else False
-    
     def get_device_ip(self):
         p = subprocess.run(f'{adb} -s {self.device_id} shell ip -o -4 address', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         if p.returncode != 0:

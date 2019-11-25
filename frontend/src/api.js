@@ -19,12 +19,6 @@ export const getPackageName = () => {
   })
 }
 
-export const getDeviceDetail = (deviceId) => {
-  return axios({
-    url: API_PREFIX + '/device/' + deviceId
-  })
-}
-
 export const getPackages = (deviceId) => {
   return axios({
     url: API_PREFIX + '/packages/' + deviceId
@@ -34,12 +28,6 @@ export const getPackages = (deviceId) => {
 export const getScreenShot = (deviceId) => {
   return axios({
     url: API_PREFIX + '/screenshot/' + deviceId
-  })
-}
-
-export const startApp = (deviceId, packageName) => {
-  return axios({
-    url: API_PREFIX + '/start_app/' + deviceId + '/' + packageName
   })
 }
 
@@ -80,6 +68,14 @@ export const stopApp = (deviceId, packageName) => {
   })
 }
 
+export const launchApp = (deviceId, packageName, actions) => {
+  return axios({
+    url: API_PREFIX + '/device/' + deviceId + '/app/' + packageName + '/start',
+    method: 'PUT',
+    data: { actions }
+  })
+}
+
 export const installApp = (deviceId, apkPath) => {
   return axios({
     url: API_PREFIX + '/device/' + deviceId + '/install',
@@ -107,5 +103,27 @@ export const getAppList = (template, searchStr) => {
     url: API_PREFIX + '/search/app',
     method: 'POST',
     data: { template, searchStr }
+  })
+}
+
+export const getStartConfigOptions = () => {
+  return axios({
+    url: API_PREFIX + '/template/start'
+  })
+}
+
+export const getLaunchActions = (template) => {
+  return axios({
+    url: API_PREFIX + '/template/start',
+    method: 'PUT',
+    data: { template }
+  })
+}
+
+export const saveLaunchActions = (template, actions) => {
+  return axios({
+    url: API_PREFIX + '/template/start',
+    method: 'POST',
+    data: { template, actions }
   })
 }

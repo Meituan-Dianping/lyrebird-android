@@ -1,11 +1,6 @@
 import requests
 
 """
-Template id
-"""
-key = "source001"
-
-"""
 Template name
 """
 name = "NAME"

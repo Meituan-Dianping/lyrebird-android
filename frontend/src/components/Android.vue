@@ -9,14 +9,14 @@
       <div v-if="focusDeviceId" style="height:100vh">
         <Split v-model="split" mode="vertical">
           <Row slot="top">
-            <application/>
+            <package-board/>
           </Row>
           <Row slot="top" style="height:calc(100% - 63px)">
             <i-col span="12" style="height:100%;border-right:1px solid #e8eaec;">
-              <package-install/>
+              <package-launch/>
             </i-col>
-            <i-col span="12">
-              <package-info/>
+            <i-col span="12" style="height:100%">
+              <package-install/>
             </i-col>
           </Row>
           <div slot="bottom" style="height:100%">
@@ -43,9 +43,9 @@ import ConsoleLog from '@/components/ConsoleLog.vue'
 import DeviceLog from '@/components/DeviceLog.vue'
 import DeviceList from '@/components/DeviceList.vue'
 import ScreenShot from '@/components/ScreenShot.vue'
-import PackageInfo from '@/components/PackageInfo.vue'
+import PackageLaunch from '@/components/PackageLaunch.vue'
 import PackageInstall from '@/components/PackageInstall.vue'
-import Application from '@/components/Application.vue'
+import PackageBoard from '@/components/PackageBoard.vue'
 
 export default {
   components: {
@@ -53,9 +53,9 @@ export default {
     DeviceLog,
     DeviceList,
     ScreenShot,
-    Application,
+    PackageBoard,
     PackageInstall,
-    PackageInfo
+    PackageLaunch
   },
   data () {
     return {
