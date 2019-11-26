@@ -106,8 +106,7 @@ export default {
         key: '',
         value: '',
         group: '',
-        desc: '',
-        value_type: 'text'
+        desc: ''
       })
     },
     saveLaunchActions () {
