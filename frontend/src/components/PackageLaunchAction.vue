@@ -90,7 +90,12 @@ export default {
         }
       },
       set (val) {
-        this.$store.commit('setLaunchActionsItemValue', { index: this.index, info: val })
+        if (this.infoValueType === 'object') {
+          let valObj = JSON.parse(val)
+          this.$store.commit('setLaunchActionsItemValue', { index: this.index, info: valObj })
+        } else {
+          this.$store.commit('setLaunchActionsItemValue', { index: this.index, info: val })
+        }
       }
     }
   },
