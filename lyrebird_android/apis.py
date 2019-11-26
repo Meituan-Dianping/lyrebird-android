@@ -218,7 +218,7 @@ def _start_package(device, package, request):
     if actions:
         formated_actions = _format_config(actions)
         parameters_str = _get_parameters_str(formated_actions)
-    _command = f'adb shell am start --activity-clear-top -n {package.launch_activity} {parameters_str}'
+    _command = f'adb shell "am start --activity-clear-top -n {package.launch_activity} {parameters_str}"'
     res = device.adb_command_executor(_command)
     return res
 
@@ -245,7 +245,7 @@ def _get_parameters_str(actions):
             escaped_value = value.replace('"', r'\"')
         else:
             escaped_value = str(value)
-        escaped_value = '"' + escaped_value + '"'
+        escaped_value = "'" + escaped_value + "'"
         return escaped_value
 
     launch_actions = []
