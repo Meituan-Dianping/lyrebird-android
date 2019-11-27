@@ -75,7 +75,7 @@ export default new Vuex.Store({
   actions: {
     loadDevices ({ state, commit }) {
       api.getDevices().then(response => {
-        commit('setDevices', response.data)
+        commit('setDevices', response.data.device_list)
         if (!state.devices.hasOwnProperty(state.focusDeviceId)) {
           commit('setFocusDeviceId', null)
           commit('setScreenShotUrl', null)
@@ -91,20 +91,20 @@ export default new Vuex.Store({
     },
     loadPackages ({ state, commit }) {
       api.getPackages(state.focusDeviceId).then(response => {
-        commit('setPackages', response.data)
+        commit('setPackages', response.data.packages)
       })
     },
     loadDefaultPackageName ({ commit, dispatch }) {
       api.getPackageName().then(response => {
-        if (response.data.packageName) {
-          commit('setFocusPackageName', response.data.packageName)
+        if (response.data.package_name) {
+          commit('setFocusPackageName', response.data.package_name)
           dispatch('loadPackageInfo')
         }
       })
     },
     loadPackageInfo ({ state, commit }) {
       api.getAppInfo(state.focusDeviceId, state.focusPackageName).then(response => {
-        commit('setPackageInfo', response.data)
+        commit('setPackageInfo', response.data.app_info)
       })
     },
     executeCommand ({ state, commit, dispatch }, { command }) {

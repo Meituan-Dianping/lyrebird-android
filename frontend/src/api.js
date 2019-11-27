@@ -1,6 +1,24 @@
 import axios from 'axios'
 const API_PREFIX = '/plugins/android/api'
 
+
+const successHandler = (response) => {
+  if (!response.data.hasOwnProperty('code')) {
+    return Promise.reject(response)
+  } else if (response.data.code !== 1000) {
+    return Promise.reject(response)
+  } else {
+    return response
+  }
+}
+
+const errorHandler = (error) => {
+  return Promise.reject(error)
+}
+
+axios.interceptors.response.use(successHandler, errorHandler)
+
+
 export const getDevices = () => {
   return axios({
     url: API_PREFIX + '/devices'
