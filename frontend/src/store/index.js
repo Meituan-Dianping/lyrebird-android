@@ -117,13 +117,14 @@ export default new Vuex.Store({
         dispatch('getHistoryCommand')
       })
     },
-    getInstallOptions ({ commit }) {
+    getInstallOptions ({ commit, dispatch }) {
       api.getInstallOptions()
         .then(response => {
           if (response.data.code === 1000) {
             commit('setInstallOptions', response.data.install_options)
             if (response.data.install_options.length) {
               commit('setSelectedInstallIndex', 0)
+              dispatch('loadAppList', '')
             }
           } else if (response.data.code === 3000) {
             console.log('get install source options error:', response)
