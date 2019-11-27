@@ -6,7 +6,6 @@ import lyrebird
 import threading
 import subprocess
 from . import config
-from lyrebird import context
 from lyrebird.log import get_logger
 
 """
@@ -271,7 +270,7 @@ class Device:
         res = []
         if p.returncode == 0:
             output = p.stdout.decode()
-            res = [item.split(':')[1] for item in output.strip().split('\n') if item]
+            res = [item.split(':')[1].strip() for item in output.strip().split('\n') if item]
         return res
 
     def package_info(self, package_name):
@@ -279,7 +278,10 @@ class Device:
                            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         if p.returncode != 0:
             raise ADBError(p.stderr.decode())
-        return App.from_raw(package_name, p.stdout.decode())
+        app = App.from_raw(package_name, p.stdout.decode())
+        if config.get_config('package.launch.activity'):
+            app.launch_activity = config.get_config('package.launch.activity')
+        return app
 
     def package_meminfo(self, package_name):
         p = subprocess.run(f'{adb} -s {self.device_id} shell dumpsys meminfo {package_name}', shell=True, 

@@ -4,18 +4,18 @@ import jinja2
 import socket
 import codecs
 import requests
-import lyrebird
 from pathlib import Path
-from . import config
-from . import template_loader
-from lyrebird import context
-from .device_service import DeviceService
 from urllib.parse import urlparse
 from flask import request, jsonify, send_from_directory
+from . import config
+from . import template_loader
+from .device_service import DeviceService
+from lyrebird.mock.context import make_ok_response, make_fail_response
+from lyrebird import application, get_plugin_storage, add_background_task, publish
 
 
 device_service = DeviceService()
-storage = lyrebird.get_plugin_storage()
+storage = get_plugin_storage()
 tmp_dir = os.path.abspath(os.path.join(storage, 'tmp'))
 anr_dir = os.path.abspath(os.path.join(storage, 'anr'))
 screenshot_dir = os.path.abspath(os.path.join(storage, 'screenshot'))
@@ -23,59 +23,40 @@ screenshot_dir = os.path.abspath(os.path.join(storage, 'screenshot'))
 if not os.path.exists(tmp_dir):
     os.makedirs(tmp_dir)
 
-def info():
-    device_info = {'device': None, 'app': None}
-    if len(device_service.devices) == 0:
-        return jsonify(device_info)
-    device = list(device_service.devices.values())[0]
-    device_prop = device.to_dict()
-    device_info['device'] = {'UDID': device_prop['device_id'], 'Model': device_prop['model'], 'Version': device_prop['releaseVersion']}
-
-    conf = config.load()
-    if hasattr(conf, 'package_name'):
-        package_name = conf.package_name
-    else:
-        package_name = 'com.sankuai.meituan'
-
-    app = device.package_info(package_name)
-    device_info['app'] = {'PackageName': package_name, 'LaunchActivity': app.launch_activity,
-                            'Version': app.version_name}
-    return jsonify(device_info)
-
 def device_list():
-    return jsonify(device_service.devices_to_dict())
+    device_list = device_service.devices_to_dict()
+    return make_ok_response(device_list=device_list)
 
 def last_package_name():
     conf = config.load()
-    return jsonify({"packageName": conf.package_name})
+    return make_ok_response(package_name=conf.package_name)
 
 def app_info(device_id, package_name):
 
     def send_device_event():
         device_service.publish_devices_package_info(device_service.devices, package_name)
-    lyrebird.add_background_task('SendAndroidDeviceInfo', send_device_event)
+    add_background_task('SendAndroidDeviceInfo', send_device_event)
 
     device = device_service.devices.get(device_id)
     app = device.package_info(package_name)
-    return jsonify({'launchActivity': app.launch_activity, 'version': app.version_name, 'detail': app.raw})
+    app_info = {
+        'launchActivity': app.launch_activity,
+        'version': app.version_name,
+        'detail': app.raw
+    }
+    return make_ok_response(app_info=app_info)
 
 def take_screen_shot(device_id):
     device = device_service.devices.get(device_id)
     img_info = device.take_screen_shot()
     timestamp = img_info.get('timestamp')
     if img_info.get('screen_shot_file'):
-        return jsonify({'imgUrl': f'/plugins/android/api/src/screenshot/{device_id}?time={timestamp}'})
+        return make_ok_response(imgUrl=f'/plugins/android/api/src/screenshot/{device_id}?time={timestamp}')
 
 def get_all_package(device_id):
     device = device_service.devices.get(device_id)
     packages = device.get_all_packages()
-    res = []
-    for package in packages:
-        res.append({
-            "value": package,
-            "label": package
-        })
-    return jsonify(res)
+    return make_ok_response(packages=packages)
 
 def get_screenshot_image(device_id):
     if request.args.get('time'):
@@ -103,26 +84,26 @@ def get_screenshots(message):
                 }
             }
         )
-    lyrebird.publish('android.screenshot', screenshot_list)
+    publish('android.screenshot', screenshot_list)
 
 def execute_command():
     if request.method == 'POST':
         _command = request.json.get('command')
         if not _command:
-            return context.make_fail_response('Empty command!')
+            return make_fail_response('Empty command!')
 
         _device_id = request.json.get('device_id', '')
         device = device_service.devices.get(_device_id)
         if not device:
-            return context.make_fail_response('Device not found!')
+            return make_fail_response('Device not found!')
 
         res = device.adb_command_executor(_command)
         output = res.stdout.decode()
         err_str = res.stderr.decode()
         if err_str:
-            return context.make_fail_response(err_str)
+            return make_fail_response(err_str)
         else:
-            return context.make_ok_response(data=output)
+            return make_ok_response(data=output)
 
 def template_controller(action):
     controller_actions = {
@@ -130,7 +111,7 @@ def template_controller(action):
         'start': _start_template
     }
     if not controller_actions.get(action):
-        return context.make_fail_response(f'Unknown template action: {action}')
+        return make_fail_response(f'Unknown template action: {action}')
 
     action_func = controller_actions.get(action)
     res = action_func(request)
@@ -140,12 +121,12 @@ def template_controller(action):
 def _install_template(request):
     if request.method == 'GET':
         install_options = template_loader.install_options()
-        return context.make_ok_response(install_options=install_options)
+        return make_ok_response(install_options=install_options)
 
 def _start_template(request):
     if request.method == 'GET':
         start_options = template_loader.start_options()
-        return context.make_ok_response(start_options=start_options)
+        return make_ok_response(start_options=start_options)
 
     elif request.method == 'PUT':
         template = request.json.get('template')
@@ -153,7 +134,7 @@ def _start_template(request):
         content = template_loader.get_content(template_path)
 
         actions = content['actions']
-        return context.make_ok_response(launch_actions=actions)
+        return make_ok_response(launch_actions=actions)
 
     elif request.method == 'POST':
         template = request.json.get('template')
@@ -163,7 +144,7 @@ def _start_template(request):
         actions = request.json.get('actions')
         content['actions'] = actions
         template_loader.save_content(content, template_path)
-        return context.make_ok_response()
+        return make_ok_response()
 
 def application_controller(device_id, package_name, action):
     controller_actions = {
@@ -176,23 +157,23 @@ def application_controller(device_id, package_name, action):
     if request.method == 'PUT':
         device = device_service.devices.get(device_id)
         if not device:
-            return context.make_fail_response(f'Device {device_id} not found!')
+            return make_fail_response(f'Device {device_id} not found!')
         package = device.package_info(package_name)
         if not package:
-            return context.make_fail_response(f'Application {package_name} not found!')
+            return make_fail_response(f'Application {package_name} not found!')
         if not controller_actions.get(action):
-            return context.make_fail_response(f'Unknown application action: {action}')
+            return make_fail_response(f'Unknown application action: {action}')
 
         action_func = controller_actions.get(action)
         res = action_func(device, package, request)
 
         if res.returncode != 0:
-            return context.make_fail_response(res.stderr.decode())
+            return make_fail_response(res.stderr.decode())
         # When adb uninstall <package> fail, the returncode is 0, while the output string contains `Failure`
         elif 'Failure' in res.stdout.decode():
-            return context.make_fail_response(res.stdout.decode())
+            return make_fail_response(res.stdout.decode())
         else:
-            return context.make_ok_response()
+            return make_ok_response()
 
 def _uninstall_package(device, package, _):
     package_name = package.package
@@ -232,7 +213,7 @@ def _format_config(config):
     template = jinja2.Template(config_str)
     formated_config_str = template.render(
         ip=get_ip(),
-        port=lyrebird.context.application.conf.get('mock.port')
+        port=application.config.get('mock.port')
     )
     formated_config_str = formated_config_str.encode('utf-8')
     formated_config = json.loads(formated_config_str)
@@ -267,17 +248,17 @@ def device_controller(device_id, action):
     if request.method == 'PUT':
         device = device_service.devices.get(device_id)
         if not device:
-            return context.make_fail_response(f'Device {device_id} not found!')
+            return make_fail_response(f'Device {device_id} not found!')
         if not controller_actions.get(action):
-            return context.make_fail_response(f'Unknown device action: {action}')
+            return make_fail_response(f'Unknown device action: {action}')
 
         action_func = controller_actions.get(action)
         res = action_func(device, request)
 
         if res.returncode != 0:
-            return context.make_fail_response(res.stderr.decode())
+            return make_fail_response(res.stderr.decode())
         else:
-            return context.make_ok_response()
+            return make_ok_response()
 
 def _install_package(device, request):
     apk_path = request.json.get('apkPath')
@@ -292,9 +273,9 @@ def download_application():
     app_file = Path(tmp_dir)/app_name
 
     if not app_file.name.endswith('.apk'):
-        return context.make_fail_response(f'Unexpected type: {app_file.stem}, url: {app_url}')
+        return make_fail_response(f'Unexpected type: {app_file.stem}, url: {app_url}')
     _download_big_file(app_file, app_url)
-    return context.make_ok_response(path=str(app_file))
+    return make_ok_response(path=str(app_file))
 
 def _download_big_file(path, url):
     response = requests.get(url, stream=True)
@@ -313,10 +294,10 @@ def search_app():
         origin_app_list = template.get_apps()
 
         if not search_str:
-            return context.make_ok_response(applist=origin_app_list)
+            return make_ok_response(applist=origin_app_list)
 
         matched_apps = [app for app in origin_app_list if search_str in app['name']]
-        return context.make_ok_response(applist=matched_apps)
+        return make_ok_response(applist=matched_apps)
 
 def get_ip():
     """

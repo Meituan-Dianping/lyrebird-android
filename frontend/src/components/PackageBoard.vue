@@ -5,7 +5,7 @@
     </Row>
     <Row type="flex" align="middle" style="padding: 5px;">
       <i-select size="small" v-model="packageName" placeholder="package name" filterable style="width:calc(100% - 325px);">
-        <i-option v-for="item in packages" :value="item.value" :key="item.value">{{ item.label }}</i-option>
+        <i-option v-for="item in packages" :value="item" :key="item">{{ item }}</i-option>
       </i-select>
       <Button type="primary" size="small" style="margin:0px 5px" @click.native="stopApp" :disabled="!packageName">Stop App</Button>
       <Button type="primary" size="small" style="margin:0px 5px" @click.native="shownUninstallModal=true" :disabled="!packageName">Uninstall</Button>
