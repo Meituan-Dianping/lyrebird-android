@@ -110,8 +110,6 @@ def get_content(path):
         raise AndroidTemplateIllegal(f'Load content failed:\nBad content: {path}\n{traceback.format_exc()}')
 
 def save_content(content, path):
-    if not Path(path).exists():
-        raise AndroidTemplateNotFound(f'Android content {str(path)} not found!')
     try:
         with codecs.open(str(path), 'w', 'utf-8') as f:
             json.dump(content, f, ensure_ascii=False, indent=4)

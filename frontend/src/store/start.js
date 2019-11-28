@@ -55,6 +55,17 @@ export default {
           dispatch('loadLaunchActions')
         })
     },
+    createLaunchActions ({ state, commit, dispatch }, newTemplateName) {
+      api.createLaunchActions(
+        state.startConfigOptions[state.selectedStartConfigIndex],
+        state.launchActions,
+        newTemplateName
+      )
+        .then(response => {
+          dispatch('loadStartConfigOptions')
+          commit('setSelectedStartConfigIndex', response.data.index)
+        })
+    },
     launchApp ({ state, commit }, { deviceId, packageName }) {
       commit('setIsStartingApp', true)
       api.launchApp(deviceId, packageName, state.launchActions)

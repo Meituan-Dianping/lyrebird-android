@@ -27,7 +27,10 @@
           <Option value="link" key="link">Link</Option>
         </Select>
         <span slot="append">
-          <Icon :type="installMode === 'remote' ? 'md-search' : 'md-archive'" />
+          <Icon
+            :type="installMode === 'remote' ? 'md-search' : 'md-archive'"
+            @click="installMode === 'remote' ? searchApp() : installApp(inputStr)"
+          />
         </span>
       </i-input>
     </Row>

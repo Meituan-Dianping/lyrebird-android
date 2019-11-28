@@ -14,7 +14,7 @@
         filterable
         allow-create
         @on-change="getLaunchActions"
-        style="width:calc(100% - 120px);"
+        style="width:calc(100% - 180px);"
       >
         <Option v-for="(item, index) in startConfigOptions" :value="index" :key="index">{{ item.name }}</Option>
       </Select>
@@ -26,6 +26,15 @@
         style="margin-left:5px"
       >
         Save
+      </Button>
+      <Button
+        type="primary"
+        size="small"
+        @click.native="shownCreateTemplateModal=true"
+        :disabled="selectedStartConfigIndex === null"
+        style="margin-left:5px"
+      >
+        Save as
       </Button>
       <Button
         type="primary"
@@ -54,6 +63,21 @@
         </Tooltip>
       </Row>
     </div>
+    <Modal v-model="shownCreateTemplateModal" title="Create launch config">
+      <Row type="flex" align="middle">
+        <b>Config name:</b>
+        <Input
+          v-model="newTemplateName"
+          placeholder="Input template name"
+          style="width:calc(100% - 88px);margin-left:10px;"
+        />
+      </Row>
+      <div slot="footer">
+        <Button size="large" type="primary" long @click="createLaunchActions">
+          Save
+        </Button>
+      </div>
+    </Modal>
   </div>
 </template>
 
@@ -66,6 +90,12 @@ export default {
   },
   created () {
     this.$store.dispatch('loadStartConfigOptions')
+  },
+  data () {
+    return {
+      newTemplateName: '',
+      shownCreateTemplateModal: false
+    }
   },
   computed: {
     packageName () {
@@ -111,6 +141,11 @@ export default {
     },
     saveLaunchActions () {
       this.$store.dispatch('saveLaunchActions')
+    },
+    createLaunchActions () {
+      this.$store.dispatch('createLaunchActions', this.newTemplateName)
+      this.shownCreateTemplateModal = false
+      this.newTemplateName = ''
     },
     launchApp () {
       this.$store.dispatch('launchApp', {

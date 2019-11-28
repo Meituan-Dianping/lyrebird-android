@@ -145,3 +145,11 @@ export const saveLaunchActions = (template, actions) => {
     data: { template, actions }
   })
 }
+
+export const createLaunchActions = (template, actions, name) => {
+  return axios({
+    url: API_PREFIX + '/template/start',
+    method: 'POST',
+    data: { template, actions, name }
+  })
+}

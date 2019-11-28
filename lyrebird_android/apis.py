@@ -142,9 +142,25 @@ def _start_template(request):
         content = template_loader.get_content(template_path)
 
         actions = request.json.get('actions')
-        content['actions'] = actions
-        template_loader.save_content(content, template_path)
-        return make_ok_response()
+        new_template_name = request.json.get('name')
+
+        if not new_template_name:
+            content['actions'] = actions
+            template_loader.save_content(content, template_path)
+            return make_ok_response()
+
+        else:
+            content['actions'] = actions
+            content['name'] = new_template_name
+            template_path = Path(template_path).parent/(new_template_name+'.json')
+            template_loader.save_content(content, template_path)
+
+            start_options = template_loader.start_options()
+            for i in range(len(start_options)):
+                if start_options[i]['path'] == str(template_path):
+                    index = i
+                    break
+            return make_ok_response(index=index)
 
 def application_controller(device_id, package_name, action):
     controller_actions = {
