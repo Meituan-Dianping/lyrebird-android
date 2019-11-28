@@ -12,7 +12,6 @@
         :search="installMode === 'remote' ? true : false"
         :placeholder="installMode === 'remote' ? 'Input search string' : 'Input link'"
         @on-enter="installMode === 'remote' ? searchApp() : installApp(inputStr)"
-        :icon="installMode === 'remote' ? 'md-search' : 'md-archive'"
       >
         <Select
           v-model="selectedInstallIndex"
@@ -27,6 +26,9 @@
           <Divider v-show="installOptions.length" size="small" dashed style="margin:0px 0px"/>
           <Option value="link" key="link">Link</Option>
         </Select>
+        <span slot="append">
+          <Icon :type="installMode === 'remote' ? 'md-search' : 'md-archive'" />
+        </span>
       </i-input>
     </Row>
     <Spin fix v-if="isLoadingAppList||isInstallingApp||isDownloadingApp">

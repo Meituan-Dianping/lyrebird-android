@@ -20,7 +20,6 @@ export default new Vuex.Store({
     packages: [],
     focusPackageName: null,
     packageInfo: {},
-    packageDetail: null,
     installOptions: [],
     selectedInstallIndex: null,
     appList: [],
@@ -89,14 +88,15 @@ export default new Vuex.Store({
         commit('setIsTakingScreen', false)
       })
     },
-    loadPackages ({ state, commit }) {
+    loadPackages ({ state, commit, dispatch }) {
       api.getPackages(state.focusDeviceId).then(response => {
         commit('setPackages', response.data.packages)
+        dispatch('loadDefaultPackageName')
       })
     },
-    loadDefaultPackageName ({ commit, dispatch }) {
+    loadDefaultPackageName ({ state, commit, dispatch }) {
       api.getPackageName().then(response => {
-        if (response.data.package_name) {
+        if (response.data.package_name && state.packages.includes(response.data.package_name)) {
           commit('setFocusPackageName', response.data.package_name)
           dispatch('loadPackageInfo')
         }
@@ -147,11 +147,20 @@ export default new Vuex.Store({
           dispatch('installApp', response.data.path)
         })
     },
-    installApp ({ state, commit }, path) {
+    installApp ({ state, commit, dispatch }, path) {
       commit('setIsInstallingApp', true)
       api.installApp(state.focusDeviceId, path)
         .then(response => {
           commit('setIsInstallingApp', false)
+          dispatch('loadPackages')
+        })
+    },
+    uninstallApp ({state, commit, dispatch}) {
+      api.uninstallApp(state.focusDeviceId, state.focusPackageName)
+        .then(response => {
+          dispatch('loadPackages')
+          commit('setFocusPackageName', null)
+          commit('setPackageInfo', {})
         })
     }
   }

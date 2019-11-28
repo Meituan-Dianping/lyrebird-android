@@ -70,10 +70,7 @@ export default {
         })
     },
     uninstall () {
-      api.uninstallApp(this.focusDeviceId, this.packageName)
-        .then(response => {
-          console.log('Uninstall App ' + this.packageName + ' result: ' + response.data.message)
-        })
+      this.$store.dispatch('uninstallApp')
       this.shownUninstallModal = false
     },
     clearCache () {
