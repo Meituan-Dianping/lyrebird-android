@@ -62,8 +62,8 @@ export default {
         newConfigName
       )
         .then(response => {
-          dispatch('loadStartConfigOptions')
           commit('setSelectedStartConfigIndex', response.data.index)
+          dispatch('loadStartConfigOptions')
         })
     },
     launchApp ({ state, commit }, { deviceId, packageName }) {
