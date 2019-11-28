@@ -1,5 +1,6 @@
 import os
 import json
+import uuid
 import jinja2
 import socket
 import codecs
@@ -152,7 +153,8 @@ def _start_template(request):
         else:
             content['actions'] = actions
             content['name'] = new_template_name
-            template_path = Path(template_path).parent/(new_template_name+'.json')
+            config_file_name = str(uuid.uuid4()) + '.json'
+            template_path = Path(template_path).parent/config_file_name
             template_loader.save_content(content, template_path)
 
             start_options = template_loader.start_options()
