@@ -33,7 +33,6 @@ export default {
     onCellClick (deviceId) {
       this.$store.commit('setFocusDeviceId', deviceId)
       this.$store.commit('setDeviceInfo', this.devices[deviceId])
-      this.$store.dispatch('loadDefaultPackageName')
       this.$store.dispatch('loadPackages')
       this.$store.dispatch('takeScreenShot')
     },
