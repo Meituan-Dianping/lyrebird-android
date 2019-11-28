@@ -55,11 +55,11 @@ export default {
           dispatch('loadLaunchActions')
         })
     },
-    createLaunchActions ({ state, commit, dispatch }, newTemplateName) {
+    createLaunchActions ({ state, commit, dispatch }, newConfigName) {
       api.createLaunchActions(
         state.startConfigOptions[state.selectedStartConfigIndex],
         state.launchActions,
-        newTemplateName
+        newConfigName
       )
         .then(response => {
           dispatch('loadStartConfigOptions')

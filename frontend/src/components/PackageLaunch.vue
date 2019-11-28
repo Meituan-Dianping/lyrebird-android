@@ -30,7 +30,7 @@
       <Button
         type="primary"
         size="small"
-        @click.native="shownCreateTemplateModal=true"
+        @click.native="shownCreateConfigModal=true"
         :disabled="selectedStartConfigIndex === null"
         style="margin-left:5px"
       >
@@ -63,12 +63,12 @@
         </Tooltip>
       </Row>
     </div>
-    <Modal v-model="shownCreateTemplateModal" title="Create launch config">
+    <Modal v-model="shownCreateConfigModal" title="Create launch config">
       <Row type="flex" align="middle">
         <b>Config name:</b>
         <Input
-          v-model="newTemplateName"
-          placeholder="Input template name"
+          v-model="newConfigName"
+          placeholder="Input start config name"
           style="width:calc(100% - 88px);margin-left:10px;"
         />
       </Row>
@@ -93,8 +93,8 @@ export default {
   },
   data () {
     return {
-      newTemplateName: '',
-      shownCreateTemplateModal: false
+      newConfigName: '',
+      shownCreateConfigModal: false
     }
   },
   computed: {
@@ -143,9 +143,9 @@ export default {
       this.$store.dispatch('saveLaunchActions')
     },
     createLaunchActions () {
-      this.$store.dispatch('createLaunchActions', this.newTemplateName)
-      this.shownCreateTemplateModal = false
-      this.newTemplateName = ''
+      this.$store.dispatch('createLaunchActions', this.newConfigName)
+      this.shownCreateConfigModal = false
+      this.newConfigName = ''
     },
     launchApp () {
       this.$store.dispatch('launchApp', {
