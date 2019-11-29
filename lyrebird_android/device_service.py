@@ -67,7 +67,7 @@ class DeviceService:
         devices_info_list = []
         for device_id, device_info in online_devices.items():
             device_detail = online_devices[device_id]
-            if device_detail.device_info == None:
+            if device_detail.device_info is None:
                 continue
             item = {
                 'id': device_id,
@@ -90,7 +90,8 @@ class DeviceService:
 
         lyrebird.publish('android.device', devices_info_list, state=True)
 
-    def reset_screenshot_dir(self):
+    @staticmethod
+    def reset_screenshot_dir():
         if os.path.exists(android_helper.screenshot_dir):
             shutil.rmtree(android_helper.screenshot_dir)
             logger.debug('Android device log file reset')

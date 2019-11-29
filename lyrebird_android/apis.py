@@ -7,7 +7,7 @@ import codecs
 import requests
 from pathlib import Path
 from urllib.parse import urlparse
-from flask import request, jsonify, send_from_directory
+from flask import request, send_from_directory
 from . import config
 from . import template_loader
 from .device_service import DeviceService
