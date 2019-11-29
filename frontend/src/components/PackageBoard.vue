@@ -4,12 +4,12 @@
       <strong>App Shortcuts</strong>
     </Row>
     <Row type="flex" align="middle" style="padding: 5px;">
-      <i-select size="small" v-model="packageName" placeholder="package name" filterable style="width:calc(100% - 325px);">
+      <i-select size="small" v-model="packageName" placeholder="package name" filterable style="width:calc(100% - 310px);">
         <i-option v-for="item in packages" :value="item" :key="item">{{ item }}</i-option>
       </i-select>
-      <Button type="primary" size="small" style="margin:0px 5px" @click.native="stopApp" :disabled="!packageName">Stop App</Button>
-      <Button type="primary" size="small" style="margin:0px 5px" @click.native="shownUninstallModal=true" :disabled="!packageName">Uninstall</Button>
-      <Button type="primary" size="small" style="margin:0px 5px" @click.native="clearCache" :disabled="!packageName">Clear Cache</Button>
+      <Button type="primary" size="small" style="margin-left:5px" @click.native="stopApp" :disabled="!packageName">Stop App</Button>
+      <Button type="primary" size="small" style="margin-left:5px" @click.native="shownUninstallModal=true" :disabled="!packageName">Uninstall</Button>
+      <Button type="primary" size="small" style="margin-left:5px" @click.native="clearCache" :disabled="!packageName">Clear Cache</Button>
       <Button type="primary" size="small" style="margin-left:5px" @click.native="showAppDetail = true" :disabled="!packageName">More Detail</Button>
     </Row>
     <Modal v-model="shownUninstallModal">

@@ -284,7 +284,7 @@ class Device:
         return app
 
     def package_meminfo(self, package_name):
-        p = subprocess.run(f'{adb} -s {self.device_id} shell dumpsys meminfo {package_name}', shell=True, 
+        p = subprocess.run(f'{adb} -s {self.device_id} shell dumpsys meminfo {package_name}', shell=True,
                             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         if p.returncode == 0:
             return p.stdout.decode().split('\n')
@@ -349,7 +349,7 @@ class Device:
             if resolution_str.startswith('init'):
                 return resolution_str[len('init='):]
         return ''
-    
+
     def get_release_version(self):
         p = subprocess.run(f'{adb} -s {self.device_id} shell getprop ro.build.version.release', shell=True, \
                         stdout=subprocess.PIPE, stderr=subprocess.PIPE)

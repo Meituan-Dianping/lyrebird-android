@@ -155,7 +155,7 @@ export default new Vuex.Store({
           dispatch('loadPackages')
         })
     },
-    uninstallApp ({state, commit, dispatch}) {
+    uninstallApp ({ state, commit, dispatch }) {
       api.uninstallApp(state.focusDeviceId, state.focusPackageName)
         .then(response => {
           dispatch('loadPackages')

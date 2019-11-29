@@ -1,12 +1,13 @@
 import os
 import json
+import uuid
 import jinja2
 import socket
 import codecs
 import requests
 from pathlib import Path
 from urllib.parse import urlparse
-from flask import request, jsonify, send_from_directory
+from flask import request, send_from_directory
 from . import config
 from . import template_loader
 from .device_service import DeviceService
@@ -142,9 +143,27 @@ def _start_template(request):
         content = template_loader.get_content(template_path)
 
         actions = request.json.get('actions')
-        content['actions'] = actions
-        template_loader.save_content(content, template_path)
-        return make_ok_response()
+        new_template_name = request.json.get('name')
+
+        if not new_template_name:
+            content['actions'] = actions
+            template_loader.save_content(content, template_path)
+            return make_ok_response()
+
+        else:
+            content['actions'] = actions
+            content['name'] = new_template_name
+            config_file_name = str(uuid.uuid4()) + '.json'
+            template_path = Path(template_path).parent/config_file_name
+            template_loader.save_content(content, template_path)
+
+            start_options = template_loader.start_options()
+            selected_option_index = None
+            for i in start_options:
+                if i['path'] == str(template_path):
+                    selected_option_index = start_options.index(i)
+                    break
+            return make_ok_response(index=selected_option_index)
 
 def application_controller(device_id, package_name, action):
     controller_actions = {
