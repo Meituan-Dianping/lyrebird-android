@@ -158,11 +158,12 @@ def _start_template(request):
             template_loader.save_content(content, template_path)
 
             start_options = template_loader.start_options()
-            for i in range(len(start_options)):
-                if start_options[i]['path'] == str(template_path):
-                    index = i
+            selected_option_index = None
+            for i in start_options:
+                if i['path'] == str(template_path):
+                    selected_option_index = start_options.index(i)
                     break
-            return make_ok_response(index=index)
+            return make_ok_response(index=selected_option_index)
 
 def application_controller(device_id, package_name, action):
     controller_actions = {
