@@ -1,7 +1,6 @@
 import axios from 'axios'
 const API_PREFIX = '/plugins/android/api'
 
-
 const successHandler = (response) => {
   if (!response.data.hasOwnProperty('code')) {
     return Promise.reject(response)
@@ -17,7 +16,6 @@ const errorHandler = (error) => {
 }
 
 axios.interceptors.response.use(successHandler, errorHandler)
-
 
 export const getDevices = () => {
   return axios({

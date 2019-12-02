@@ -33,8 +33,6 @@
 </template>
 
 <script>
-import * as api from '@/api'
-
 export default {
   data () {
     return {
@@ -64,20 +62,14 @@ export default {
   },
   methods: {
     stopApp () {
-      api.stopApp(this.focusDeviceId, this.packageName)
-        .then(response => {
-          console.log('Stop App ' + this.packageName + ' result: ' + response.data.message)
-        })
+      this.$store.dispatch('stopApp')
     },
     uninstall () {
       this.$store.dispatch('uninstallApp')
       this.shownUninstallModal = false
     },
     clearCache () {
-      api.clearAppCache(this.focusDeviceId, this.packageName)
-        .then(response => {
-          console.log('Clear App ' + this.packageName + ' cache result: ' + response.data.message)
-        })
+      this.$store.dispatch('clearAppCache')
     }
   }
 }

@@ -186,6 +186,14 @@ def application_controller(device_id, package_name, action):
         action_func = controller_actions.get(action)
         res = action_func(device, package, request)
 
+        publish_channel = 'android.' + action
+        publish_message = {
+            'command': res.args,
+            'returncode': res.returncode,
+            'result': res.stderr.decode() if res.stderr.decode() else res.stdout.decode()
+        }
+        publish(publish_channel, publish_message)
+
         if res.returncode != 0:
             return make_fail_response(res.stderr.decode())
         # When adb uninstall <package> fail, the returncode is 0, while the output string contains `Failure`
@@ -273,6 +281,14 @@ def device_controller(device_id, action):
 
         action_func = controller_actions.get(action)
         res = action_func(device, request)
+
+        publish_channel = 'android.' + action
+        publish_message = {
+            'command': res.args,
+            'returncode': res.returncode,
+            'result': res.stderr.decode() if res.stderr.decode() else res.stdout.decode()
+        }
+        publish(publish_channel, publish_message)
 
         if res.returncode != 0:
             return make_fail_response(res.stderr.decode())
