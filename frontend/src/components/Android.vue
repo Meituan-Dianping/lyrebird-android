@@ -6,7 +6,7 @@
     </i-col>
 
     <i-col span="18" class="android-split">
-      <div v-if="focusDeviceId" style="height:100vh">
+      <div style="height:100vh">
         <Split v-model="split" mode="vertical">
           <Row slot="top">
             <package-board/>
@@ -30,9 +30,6 @@
             </Tabs>
           </div>
         </Split>
-      </div>
-      <div v-else>
-        <p class="cell-empty">Please select an Android device</p>
       </div>
     </i-col>
   </Row>
@@ -65,6 +62,9 @@ export default {
   created () {
     this.$store.dispatch('loadDevices')
     this.$io.on('device', this.getDevices)
+    this.$bus.$on('msg.success', this.successMessage)
+    this.$bus.$on('msg.info', this.infoMessage)
+    this.$bus.$on('msg.error', this.errorMessage)
   },
   computed: {
     focusDeviceId () {
@@ -74,6 +74,27 @@ export default {
   methods: {
     getDevices () {
       this.$store.dispatch('loadDevices')
+    },
+    successMessage (msg) {
+      this.$Message.success({
+        content: msg,
+        duration: 3,
+        closable: true
+      })
+    },
+    infoMessage (msg) {
+      this.$Message.info({
+        content: msg,
+        duration: 3,
+        closable: true
+      })
+    },
+    errorMessage (msg) {
+      this.$Message.error({
+        content: msg,
+        duration: 0,
+        closable: true
+      })
     }
   }
 }

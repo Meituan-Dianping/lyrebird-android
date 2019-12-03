@@ -37,7 +37,9 @@ export default {
       this.$store.dispatch('takeScreenShot')
     },
     takeScreenShot () {
-      this.$store.dispatch('takeScreenShot')
+      if (this.focusDeviceId) {
+        this.$store.dispatch('takeScreenShot')
+      }
     }
   }
 }

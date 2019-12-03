@@ -101,6 +101,15 @@ def execute_command():
         res = device.adb_command_executor(_command)
         output = res.stdout.decode()
         err_str = res.stderr.decode()
+
+        publish_channel = 'android.command'
+        publish_message = {
+            'command': res.args,
+            'returncode': res.returncode,
+            'result': err_str if err_str else output
+        }
+        publish(publish_channel, publish_message)
+
         if err_str:
             return make_fail_response(err_str)
         else:
@@ -185,6 +194,14 @@ def application_controller(device_id, package_name, action):
 
         action_func = controller_actions.get(action)
         res = action_func(device, package, request)
+
+        publish_channel = 'android.' + action
+        publish_message = {
+            'command': res.args,
+            'returncode': res.returncode,
+            'result': res.stderr.decode() if res.stderr.decode() else res.stdout.decode()
+        }
+        publish(publish_channel, publish_message)
 
         if res.returncode != 0:
             return make_fail_response(res.stderr.decode())
@@ -273,6 +290,14 @@ def device_controller(device_id, action):
 
         action_func = controller_actions.get(action)
         res = action_func(device, request)
+
+        publish_channel = 'android.' + action
+        publish_message = {
+            'command': res.args,
+            'returncode': res.returncode,
+            'result': res.stderr.decode() if res.stderr.decode() else res.stdout.decode()
+        }
+        publish(publish_channel, publish_message)
 
         if res.returncode != 0:
             return make_fail_response(res.stderr.decode())

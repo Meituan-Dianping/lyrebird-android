@@ -3,6 +3,7 @@ import Vuex from 'vuex'
 import * as api from '@/api'
 import start from '@/store/start'
 import console from '@/store/console'
+import { bus } from '@/eventbus'
 
 Vue.use(Vuex)
 
@@ -120,15 +121,14 @@ export default new Vuex.Store({
     getInstallOptions ({ commit, dispatch }) {
       api.getInstallOptions()
         .then(response => {
-          if (response.data.code === 1000) {
-            commit('setInstallOptions', response.data.install_options)
-            if (response.data.install_options.length) {
-              commit('setSelectedInstallIndex', 0)
-              dispatch('loadAppList', '')
-            }
-          } else if (response.data.code === 3000) {
-            console.log('get install source options error:', response)
+          commit('setInstallOptions', response.data.install_options)
+          if (response.data.install_options.length) {
+            commit('setSelectedInstallIndex', 0)
+            dispatch('loadAppList', '')
           }
+        })
+        .catch(error => {
+          bus.$emit('msg.error', 'Load install remote list error: ' + error.data.message)
         })
     },
     loadAppList ({ state, commit }, searchStr) {
@@ -137,6 +137,9 @@ export default new Vuex.Store({
         .then(response => {
           commit('setAppList', response.data.applist)
           commit('setIsLoadingAppList', false)
+        })
+        .catch(error => {
+          bus.$emit('msg.error', 'Load App list ' + state.focusPackageName + ' error: ' + error.data.message)
         })
     },
     downloadAndInstallApp ({ commit, dispatch }, url) {
@@ -153,6 +156,10 @@ export default new Vuex.Store({
         .then(response => {
           commit('setIsInstallingApp', false)
           dispatch('loadPackages')
+          bus.$emit('msg.success', 'Install App ' + state.focusPackageName + ' success!')
+        })
+        .catch(error => {
+          bus.$emit('msg.error', 'Install App ' + state.focusPackageName + ' error: ' + error.data.message)
         })
     },
     uninstallApp ({ state, commit, dispatch }) {
@@ -161,6 +168,28 @@ export default new Vuex.Store({
           dispatch('loadPackages')
           commit('setFocusPackageName', null)
           commit('setPackageInfo', {})
+          bus.$emit('msg.success', 'Uninstall App ' + state.focusPackageName + ' success!')
+        })
+        .catch(error => {
+          bus.$emit('msg.error', 'Uninstall App ' + state.focusPackageName + ' error: ' + error.data.message)
+        })
+    },
+    stopApp ({ state }) {
+      api.stopApp(state.focusDeviceId, state.focusPackageName)
+        .then(response => {
+          bus.$emit('msg.success', 'Stop App ' + state.focusPackageName + ' success!')
+        })
+        .catch(error => {
+          bus.$emit('msg.error', 'Stop App ' + state.focusPackageName + ' error: ' + error.data.message)
+        })
+    },
+    clearAppCache ({ state }) {
+      api.clearAppCache(state.focusDeviceId, state.focusPackageName)
+        .then(response => {
+          bus.$emit('msg.success', 'Clear App cache ' + state.focusPackageName + ' success!')
+        })
+        .catch(error => {
+          bus.$emit('msg.error', 'Clear App cache ' + state.focusPackageName + ' error: ' + error.data.message)
         })
     }
   }
