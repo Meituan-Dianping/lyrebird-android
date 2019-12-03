@@ -381,7 +381,6 @@ class Device:
 
     def adb_command_executor(self, command):
         command = command.strip()
-        lyrebird.publish('android.command', command)
 
         isAdbCommand = command.startswith('adb ')
         if isAdbCommand:

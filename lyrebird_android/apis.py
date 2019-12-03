@@ -101,6 +101,15 @@ def execute_command():
         res = device.adb_command_executor(_command)
         output = res.stdout.decode()
         err_str = res.stderr.decode()
+
+        publish_channel = 'android.command'
+        publish_message = {
+            'command': res.args,
+            'returncode': res.returncode,
+            'result': err_str if err_str else output
+        }
+        publish(publish_channel, publish_message)
+
         if err_str:
             return make_fail_response(err_str)
         else:
