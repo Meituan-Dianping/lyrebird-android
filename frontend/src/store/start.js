@@ -35,12 +35,13 @@ export default {
     }
   },
   actions: {
-    loadStartConfigOptions ({ commit }) {
+    loadStartConfigOptions ({ commit, dispatch }) {
       api.getStartConfigOptions()
         .then(response => {
           commit('setStartConfigOptions', response.data.start_options)
           if (response.data.start_options.length) {
             commit('setSelectedStartConfigIndex', 0)
+            dispatch('loadLaunchActions')
           }
         })
         .catch(error => {
