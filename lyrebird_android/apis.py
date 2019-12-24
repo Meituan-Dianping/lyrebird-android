@@ -20,6 +20,7 @@ storage = get_plugin_storage()
 tmp_dir = os.path.abspath(os.path.join(storage, 'tmp'))
 anr_dir = os.path.abspath(os.path.join(storage, 'anr'))
 screenshot_dir = os.path.abspath(os.path.join(storage, 'screenshot'))
+launch_config_path = Path(storage)/'launch_config'
 
 if not os.path.exists(tmp_dir):
     os.makedirs(tmp_dir)
@@ -115,55 +116,43 @@ def execute_command():
         else:
             return make_ok_response(data=output)
 
-def template_controller(action):
-    controller_actions = {
-        'install': _install_template,
-        'start': _start_template
-    }
-    if not controller_actions.get(action):
-        return make_fail_response(f'Unknown template action: {action}')
-
-    action_func = controller_actions.get(action)
-    res = action_func(request)
-
-    return res
-
-def _install_template(request):
+def template_options_controller(action):
     if request.method == 'GET':
-        install_options = template_loader.install_options()
-        return make_ok_response(install_options=install_options)
+        if action == 'install':
+            install_options = template_loader.install_options()
+            return make_ok_response(install_options=install_options)
+        elif action == 'start':
+            start_options = template_loader.start_options()
+            return make_ok_response(start_options=start_options)
+        else:
+            return make_fail_response(f'Unknown template action: {action}')
 
-def _start_template(request):
-    if request.method == 'GET':
-        start_options = template_loader.start_options()
-        return make_ok_response(start_options=start_options)
-
-    elif request.method == 'PUT':
-        template = request.json.get('template')
+def template_controller(action, template_id):
+    if action == 'start':
+        template = _find_template_by_id(template_loader.start_options(), template_id)
+        if not template:
+            return make_fail_response(f'Template {template_id} not found!')
         template_path = template.get('path')
         content = template_loader.get_content(template_path)
 
-        actions = content['actions']
-        return make_ok_response(launch_actions=actions)
+        if request.method == 'GET':
+            actions = content['actions']
+            return make_ok_response(launch_actions=actions)
 
-    elif request.method == 'POST':
-        template = request.json.get('template')
-        template_path = template.get('path')
-        content = template_loader.get_content(template_path)
-
-        actions = request.json.get('actions')
-        new_template_name = request.json.get('name')
-
-        if not new_template_name:
+        elif request.method == 'PUT':
+            actions = request.json.get('actions')
             content['actions'] = actions
             template_loader.save_content(content, template_path)
             return make_ok_response()
 
-        else:
+        elif request.method == 'POST':
+            actions = request.json.get('actions')
+            new_template_name = request.json.get('name')
+
             content['actions'] = actions
             content['name'] = new_template_name
             config_file_name = str(uuid.uuid4()) + '.json'
-            template_path = Path(template_path).parent/config_file_name
+            template_path = launch_config_path/config_file_name
             template_loader.save_content(content, template_path)
 
             start_options = template_loader.start_options()
@@ -173,6 +162,14 @@ def _start_template(request):
                     selected_option_index = start_options.index(i)
                     break
             return make_ok_response(index=selected_option_index)
+
+    else:
+        return make_fail_response(f'Unknown template action: {action}')
+
+def _find_template_by_id(options, template_id):
+    for option in options:
+        if option.get('id') == template_id:
+            return option
 
 def application_controller(device_id, package_name, action):
     controller_actions = {
@@ -245,7 +242,7 @@ def _format_config(config):
     ip
     port
     """
-    config_str = json.dumps(config)
+    config_str = json.dumps(config, ensure_ascii=False)
     template = jinja2.Template(config_str)
     formated_config_str = template.render(
         ip=get_ip(),

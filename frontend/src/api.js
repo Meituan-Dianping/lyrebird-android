@@ -128,26 +128,24 @@ export const getStartConfigOptions = () => {
   })
 }
 
-export const getLaunchActions = (template) => {
+export const getLaunchActions = (templateId) => {
   return axios({
-    url: API_PREFIX + '/template/start',
+    url: API_PREFIX + '/template/start/' + templateId
+  })
+}
+
+export const saveLaunchActions = (templateId, actions) => {
+  return axios({
+    url: API_PREFIX + '/template/start/' + templateId,
     method: 'PUT',
-    data: { template }
+    data: { actions }
   })
 }
 
-export const saveLaunchActions = (template, actions) => {
+export const createLaunchActions = (templateId, actions, name) => {
   return axios({
-    url: API_PREFIX + '/template/start',
+    url: API_PREFIX + '/template/start/' + templateId,
     method: 'POST',
-    data: { template, actions }
-  })
-}
-
-export const createLaunchActions = (template, actions, name) => {
-  return axios({
-    url: API_PREFIX + '/template/start',
-    method: 'POST',
-    data: { template, actions, name }
+    data: { actions, name }
   })
 }
