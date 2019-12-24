@@ -5,6 +5,7 @@ import traceback
 from pathlib import Path
 from lyrebird import application
 from lyrebird import get_logger
+from lyrebird import get_plugin_storage
 
 
 class AndroidTemplateIllegal(Exception):
@@ -37,6 +38,18 @@ def install_options():
     return options
 
 def start_options():
+    start_files = get_remote_start_files()
+    custom_start_files = get_custom_start_files()
+    start_files.extend(custom_start_files)
+
+    options = []
+    for path in start_files:
+        content = get_content(path)
+        _check_launch_content(content)
+        options.append({'name': content['name'], 'path': str(path), 'id': path.stem})
+    return options
+
+def get_remote_start_files():
     workspace_str = get_config('launch.workspace')
 
     if not workspace_str:
@@ -47,13 +60,18 @@ def start_options():
     else:
         workspace = Path(workspace_str)
 
-    options = []
     workspace_files = _load_dir_file(workspace, '.json')
-    for path in workspace_files:
-        content = get_content(path)
-        _check_launch_content(content)
-        options.append({'name': content['name'], 'path': str(path)})
-    return options
+    return workspace_files
+
+def get_custom_start_files():
+    storage = get_plugin_storage()
+    workspace = Path(storage)/'launch_config'
+
+    if not workspace.exists():
+        workspace.mkdir(parents=True, exist_ok=True)
+    
+    workspace_files = _load_dir_file(workspace, '.json')
+    return workspace_files
 
 def get_config(config_name):
     plugin_conf = application.config.get('plugin.android', {})

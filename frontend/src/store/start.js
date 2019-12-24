@@ -35,11 +35,11 @@ export default {
     }
   },
   actions: {
-    loadStartConfigOptions ({ commit, dispatch }) {
+    loadStartConfigOptions ({ state, commit, dispatch }) {
       api.getStartConfigOptions()
         .then(response => {
           commit('setStartConfigOptions', response.data.start_options)
-          if (response.data.start_options.length) {
+          if (response.data.start_options.length && state.selectedStartConfigIndex === null) {
             commit('setSelectedStartConfigIndex', 0)
             dispatch('loadLaunchActions')
           }
@@ -49,7 +49,7 @@ export default {
         })
     },
     loadLaunchActions ({ state, commit }) {
-      api.getLaunchActions(state.startConfigOptions[state.selectedStartConfigIndex])
+      api.getLaunchActions(state.startConfigOptions[state.selectedStartConfigIndex].id)
         .then(response => {
           commit('setLaunchActions', response.data.launch_actions)
         })
@@ -59,11 +59,12 @@ export default {
     },
     saveLaunchActions ({ state, dispatch }) {
       api.saveLaunchActions(
-        state.startConfigOptions[state.selectedStartConfigIndex],
+        state.startConfigOptions[state.selectedStartConfigIndex].id,
         state.launchActions
       )
         .then(response => {
           dispatch('loadLaunchActions')
+          bus.$emit('msg.success', 'Save start config ' + state.startConfigOptions[state.selectedStartConfigIndex].name + ' success!')
         })
         .catch(error => {
           bus.$emit('msg.error', 'Save start config ' + state.startConfigOptions[state.selectedStartConfigIndex].name + ' error: ' + error.data.message)
@@ -71,13 +72,14 @@ export default {
     },
     createLaunchActions ({ state, commit, dispatch }, newConfigName) {
       api.createLaunchActions(
-        state.startConfigOptions[state.selectedStartConfigIndex],
+        state.startConfigOptions[state.selectedStartConfigIndex].id,
         state.launchActions,
         newConfigName
       )
         .then(response => {
           commit('setSelectedStartConfigIndex', response.data.index)
           dispatch('loadStartConfigOptions')
+          bus.$emit('msg.success', 'Create start config ' + newConfigName + ' success!')
         })
         .catch(error => {
           bus.$emit('msg.error', 'Create start config ' + newConfigName + ' error: ' + error.data.message)

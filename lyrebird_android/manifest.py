@@ -23,8 +23,10 @@ manifest(
         ('/api/device/<string:device_id>/app/<string:package_name>/<string:action>', apis.application_controller, ['PUT']),
         # actions of device
         ('/api/device/<string:device_id>/<string:action>', apis.device_controller, ['PUT']),
+        # actions of templates
+        ('/api/template/<string:action>', apis.template_options_controller, ['GET']),
         # actions of template
-        ('/api/template/<string:action>', apis.template_controller, ['GET', 'PUT', 'POST']),
+        ('/api/template/<string:action>/<string:template_id>', apis.template_controller, ['GET', 'PUT', 'POST']),
         # download apk
         ('/api/src/apk', apis.download_application, ['PUT']),
         # search app

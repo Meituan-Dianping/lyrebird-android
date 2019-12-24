@@ -16,7 +16,7 @@
         @on-change="getLaunchActions"
         style="width:calc(100% - 180px);"
       >
-        <Option v-for="(item, index) in startConfigOptions" :value="index" :key="index">{{ item.name }}</Option>
+        <Option v-for="(item, index) in startConfigOptions" :value="index" :label="item.name" :key="index">{{ item.name }}</Option>
       </Select>
       <Button
         type="primary"
