@@ -69,7 +69,7 @@ def get_custom_start_files():
 
     if not workspace.exists():
         workspace.mkdir(parents=True, exist_ok=True)
-    
+
     workspace_files = _load_dir_file(workspace, '.json')
     return workspace_files
 
