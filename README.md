@@ -5,6 +5,7 @@
 [![PyPI](https://img.shields.io/pypi/v/lyrebird-android.svg)](https://pypi.python.org/pypi/lyrebird-android)
 ![PyPI](https://img.shields.io/pypi/pyversions/lyrebird-android.svg)
 ![GitHub](https://img.shields.io/github/license/meituan-dianping/lyrebird-android.svg)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/1defec02141340c1876052c1cf9d4c3a)](https://www.codacy.com/manual/Lyrebird/lyrebird-android?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Meituan-Dianping/lyrebird-android&amp;utm_campaign=Badge_Grade)
 
 **[Lyrebird](https://github.com/Meituan-Dianping/lyrebird)**
 是一个基于拦截以及模拟HTTP/HTTPS网络请求的面向移动应用的插件化测试平台。
@@ -112,7 +113,9 @@ code .
             "module": "lyrebird",
             "console": "integratedTerminal",
             "args": [
-                "-vvv"
+                "-vv",
+                "--plugin",
+                "${workspaceFolder}"
             ]
         },
         {
