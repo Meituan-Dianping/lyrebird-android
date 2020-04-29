@@ -46,8 +46,8 @@ class AndroidHomeError(Exception):
 def check_android_home():
     global adb
     android_home = os.environ.get('ANDROID_HOME')
-    if not android_home or android_home == '':
-        raise AndroidHomeError('Not set env : ANDROID_HOME')
+    if not android_home:
+        raise AndroidHomeError('Environment variable ANDROID_HOME not found!')
     if not os.path.exists(android_home):
         raise AndroidHomeError('ANDROID_HOME %s not exists' % android_home)
     if not os.path.isdir(android_home):
@@ -392,7 +392,6 @@ class Device:
 
 
 def devices():
-    check_android_home()
     res = subprocess.run(f'{adb} devices -l', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     output = res.stdout.decode()
     err_str = res.stderr.decode()

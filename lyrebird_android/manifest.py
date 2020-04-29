@@ -5,6 +5,8 @@ manifest(
     id='android',
     name='Android',
     api=[
+        # check env
+        ('/api/check_env', apis.check_env, ['GET']),
         # 获取设备列表
         ('/api/devices', apis.device_list, ['GET']),
         # 应用详情

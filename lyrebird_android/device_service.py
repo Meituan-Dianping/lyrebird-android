@@ -28,6 +28,17 @@ class DeviceService:
         self.reset_screenshot_dir()
         logger.debug('DeviceService OnCreate')
 
+    def check_env(self):
+        try:
+            android_helper.check_android_home()
+            self.status = self.RUNNING
+            logger.debug('Android device listener start')
+        except Exception as e:
+            self.status = self.STOP
+            msg = e.args[0]
+            logger.error(msg)
+            return msg
+
     def devices_to_dict(self):
         json_obj = {}
         for device_id in self.devices:
@@ -35,8 +46,7 @@ class DeviceService:
         return json_obj
 
     def run(self):
-        self.status = self.RUNNING
-        logger.debug('Android device listener start')
+        self.check_env()
         while self.status == self.RUNNING:
             try:
                 self.handle()
@@ -59,7 +69,7 @@ class DeviceService:
             self.devices[_device_id].stop_log()
             self.devices = devices
 
-        lyrebird.emit('device')
+        lyrebird.emit('android-device')
         self.publish_devices_package_info(self.devices, config.load().package_name)
 
     @staticmethod

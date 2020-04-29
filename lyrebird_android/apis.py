@@ -25,6 +25,13 @@ launch_config_path = Path(storage)/'launch_config'
 if not os.path.exists(tmp_dir):
     os.makedirs(tmp_dir)
 
+def check_env():
+    msg = device_service.check_env()
+    if device_service.status == device_service.RUNNING:
+        return make_ok_response()
+    else:
+        return make_fail_response(msg)
+
 def device_list():
     device_list = device_service.devices_to_dict()
     return make_ok_response(device_list=device_list)

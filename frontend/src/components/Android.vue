@@ -43,6 +43,7 @@ import ScreenShot from '@/components/ScreenShot.vue'
 import PackageLaunch from '@/components/PackageLaunch.vue'
 import PackageInstall from '@/components/PackageInstall.vue'
 import PackageBoard from '@/components/PackageBoard.vue'
+import { checkEnv } from '@/api'
 
 export default {
   components: {
@@ -60,8 +61,7 @@ export default {
     }
   },
   created () {
-    this.$store.dispatch('loadDevices')
-    this.$io.on('device', this.getDevices)
+    this.checkEnvironment()
     this.$bus.$on('msg.success', this.successMessage)
     this.$bus.$on('msg.info', this.infoMessage)
     this.$bus.$on('msg.error', this.errorMessage)
@@ -72,6 +72,16 @@ export default {
     }
   },
   methods: {
+    checkEnvironment () {
+      checkEnv()
+        .then(
+          this.$store.dispatch('loadDevices'),
+          this.$io.on('android-device', this.getDevices)
+        )
+        .catch(error => {
+          this.$bus.$emit('msg.error', error.data.message)
+        })
+    },
     getDevices () {
       this.$store.dispatch('loadDevices')
     },

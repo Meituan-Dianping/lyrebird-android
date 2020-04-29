@@ -17,6 +17,12 @@ const errorHandler = (error) => {
 
 axios.interceptors.response.use(successHandler, errorHandler)
 
+export const checkEnv = () => {
+  return axios({
+    url: API_PREFIX + '/check_env'
+  })
+}
+
 export const getDevices = () => {
   return axios({
     url: API_PREFIX + '/devices'
