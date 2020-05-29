@@ -1,6 +1,7 @@
-import os
+# import os
 import shutil
 import lyrebird
+from pathlib import Path
 from lyrebird import context, get_logger
 from . import android_helper
 from . import config
@@ -25,7 +26,7 @@ class DeviceService:
         self.status = self.READY
         self.handle_interval = 1
         self.devices = {}
-        self.reset_screenshot_dir()
+        self.reset_resources_dir()
         logger.debug('DeviceService OnCreate')
 
     def check_env(self):
@@ -101,7 +102,14 @@ class DeviceService:
         lyrebird.publish('android.device', devices_info_list, state=True)
 
     @staticmethod
-    def reset_screenshot_dir():
-        if os.path.exists(android_helper.screenshot_dir):
-            shutil.rmtree(android_helper.screenshot_dir)
-            logger.debug('Android device log file reset')
+    def reset_resources_dir():
+        reset_dir = [
+            Path(android_helper.screenshot_dir),
+            Path(android_helper.apk_dir)
+        ]
+
+        for path in reset_dir:
+            if path.exists():
+                shutil.rmtree(path)
+
+        logger.debug('Android device log file reset')
