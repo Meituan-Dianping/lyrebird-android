@@ -5,6 +5,7 @@ import codecs
 import lyrebird
 import threading
 import subprocess
+from pathlib import Path
 from . import config
 from lyrebird.log import get_logger
 
@@ -25,6 +26,7 @@ tmp_dir = os.path.abspath(os.path.join(storage, 'tmp'))
 anr_dir = os.path.abspath(os.path.join(storage, 'anr'))
 crash_dir = os.path.abspath(os.path.join(storage, 'crash'))
 screenshot_dir = os.path.abspath(os.path.join(storage, 'screenshot'))
+apk_dir = Path(storage)/'apk'
 
 if not os.path.exists(tmp_dir):
     os.makedirs(tmp_dir)

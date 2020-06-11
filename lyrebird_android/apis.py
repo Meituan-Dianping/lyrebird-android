@@ -21,6 +21,7 @@ tmp_dir = os.path.abspath(os.path.join(storage, 'tmp'))
 anr_dir = os.path.abspath(os.path.join(storage, 'anr'))
 screenshot_dir = os.path.abspath(os.path.join(storage, 'screenshot'))
 launch_config_path = Path(storage)/'launch_config'
+apk_dir = Path(storage)/'apk'
 
 if not os.path.exists(tmp_dir):
     os.makedirs(tmp_dir)
@@ -318,7 +319,9 @@ def download_application():
     app_url = request.json.get('appUrl')
     app_url_obj = urlparse(app_url)
     app_name = app_url_obj.path.split('/')[-1]
-    app_file = Path(tmp_dir)/app_name
+
+    apk_dir.mkdir(parents=True, exist_ok=True)
+    app_file = apk_dir/app_name
 
     if not app_file.name.endswith('.apk'):
         return make_fail_response(f'Unexpected type: {app_file.stem}, url: {app_url}')
