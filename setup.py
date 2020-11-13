@@ -29,5 +29,12 @@ setup(
     },
     install_requires=[
         'lyrebird'
-    ]
+    ],
+    extras_require={
+        'dev': [
+            "autopep8",
+            "pylint",
+            "pytest"
+        ]
+    }
 )
