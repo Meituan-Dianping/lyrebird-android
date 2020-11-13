@@ -73,14 +73,27 @@ export default new Vuex.Store({
     }
   },
   actions: {
-    loadDevices ({ state, commit }) {
+    loadDevices ({ state, commit, dispatch }) {
       api.getDevices().then(response => {
         commit('setDevices', response.data.device_list)
-        if (!state.devices.hasOwnProperty(state.focusDeviceId)) {
+        if (Object.keys(state.devices).length > 0) {
+          commit('setFocusDeviceId', Object.keys(state.devices)[0])
+          dispatch('initAllDeviceInfo')
+        } else {
           commit('setFocusDeviceId', null)
-          commit('setScreenShotUrl', null)
+          dispatch('clearAllDeviceInfo')
         }
       })
+    },
+    initAllDeviceInfo ({state, commit, dispatch}) {
+      commit('setDeviceInfo', state.devices[state.focusDeviceId])
+      dispatch('loadPackages')
+      dispatch('takeScreenShot')
+    },
+    clearAllDeviceInfo ({commit, dispatch}) {
+      commit('setDeviceInfo', {})
+      commit('setScreenShotUrl', null)
+      commit('setPackages', [])
     },
     takeScreenShot ({ state, commit }) {
       commit('setIsTakingScreen', true)
