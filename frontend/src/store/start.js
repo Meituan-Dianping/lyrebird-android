@@ -90,10 +90,10 @@ export default {
       api.launchApp(deviceId, packageName, state.launchActions)
         .then(response => {
           commit('setIsStartingApp', false)
-          bus.$emit('msg.success', 'Start App ' + state.focusPackageName + ' success!')
+          bus.$emit('msg.success', 'Start App ' + packageName + ' success!')
         })
         .catch(error => {
-          bus.$emit('msg.error', 'Start App ' + state.focusPackageName + ' error: ' + error.data.message)
+          bus.$emit('msg.error', 'Start App ' + packageName + ' error: ' + error.data.message)
         })
     }
   }

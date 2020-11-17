@@ -7,7 +7,7 @@ with open(os.path.join(here, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='lyrebird-android',
-    version='0.5.7',
+    version='0.5.8',
     packages=['lyrebird_android'],
     url='https://github.com/meituan/lyrebird-android',
     author='HBQA',
@@ -29,5 +29,12 @@ setup(
     },
     install_requires=[
         'lyrebird'
-    ]
+    ],
+    extras_require={
+        'dev': [
+            "autopep8",
+            "pylint",
+            "pytest"
+        ]
+    }
 )
