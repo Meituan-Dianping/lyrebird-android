@@ -1,4 +1,5 @@
 import os
+import re
 import sys
 import time
 import codecs
@@ -44,9 +45,15 @@ class ADBError(Exception):
 class AndroidHomeError(Exception):
     pass
 
+def check_adb_cmd():
+    p = subprocess.run('adb', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    return p.stderr == b''
 
 def check_android_home():
     global adb
+    if check_adb_cmd():
+        adb = 'adb'
+        return
     android_home = os.environ.get('ANDROID_HOME')
     if not android_home:
         raise AndroidHomeError('Environment variable ANDROID_HOME not found!')
@@ -224,6 +231,11 @@ class Device:
             return
 
         anr_package = line.strip().split()[-2]
+        re_str = "^([a-z_]{1}[a-z0-9_]*(\.[a-z_]{1}[a-z0-9_]*)*)$"
+        # Check pkg name
+        if re.match(re_str, anr_package) is None:
+            return
+
         anr_file_name = os.path.join(anr_dir, f'android_anr_{self.device_id}_{anr_package}.log')
         p = subprocess.run(f'{adb} -s {self.device_id} pull "/data/anr/traces.txt" {anr_file_name}',
                             shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
