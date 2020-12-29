@@ -405,6 +405,7 @@ def devices():
         return online_devices
 
     lines = [line for line in output.split('\n') if line]
+    lines.remove('\r')
     if len(lines) > 1:
         for line in lines[1:]:
             device = Device.from_adb_line(line)
