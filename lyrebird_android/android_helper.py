@@ -17,6 +17,8 @@ Basic ADB command for device_service and API
 
 logger = get_logger()
 
+ignore_devices_line = ['\r']
+
 here = os.path.dirname(__file__)
 adb = None
 static = os.path.abspath(os.path.join(here, 'static'))
@@ -404,8 +406,7 @@ def devices():
         logger.error('Get devices list error' + err_str)
         return online_devices
 
-    lines = [line for line in output.split('\n') if line]
-    lines.remove('\r')
+    lines = [line for line in output.split('\n') if line and line not in ignore_devices_line]
     if len(lines) > 1:
         for line in lines[1:]:
             device = Device.from_adb_line(line)
