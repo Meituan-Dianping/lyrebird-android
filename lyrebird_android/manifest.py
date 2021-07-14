@@ -4,6 +4,7 @@ from . import apis
 manifest(
     id='android',
     name='Android',
+    icon='mdi-android-debug-bridge',
     api=[
         # check env
         ('/api/check_env', apis.check_env, ['GET']),
