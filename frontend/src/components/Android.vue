@@ -135,12 +135,12 @@ export default {
   height: calc(70vh - 10px);
 }
 .info-header {
-  background-color: #f8f8f9;
+  background-color: #fff;
   padding: 5px;
 }
 .ivu-tabs > .ivu-tabs-bar {
   border-bottom: 0px;
-  background-color: #f8f8f9;
+  background-color: #fff;
   margin-bottom: 0px;
   font-weight: bolder;
 }
