@@ -253,7 +253,7 @@ def _format_config(config):
     config_str = json.dumps(config, ensure_ascii=False)
     template = jinja2.Template(config_str)
     formated_config_str = template.render(
-        ip=get_ip(),
+        ip=application.config.get('ip'),
         port=application.config.get('mock.port')
     )
     formated_config_str = formated_config_str.encode('utf-8')
@@ -349,13 +349,3 @@ def search_app():
 
         matched_apps = [app for app in origin_app_list if search_str in app['name']]
         return make_ok_response(applist=matched_apps)
-
-def get_ip():
-    """
-    获取当前设备在网络中的ip地址
-
-    :return: IP地址字符串
-    """
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    s.connect(('bing.com', 80))
-    return s.getsockname()[0]
