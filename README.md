@@ -20,7 +20,7 @@
 
 * macOS
 
-* Python3.6及以上
+* Python3.7及以上
 
 * 安装[AndroidSDK](https://developer.android.com/studio/)，并设置SDK环境变量 “ANDROID_HOME”
 
